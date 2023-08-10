@@ -86,7 +86,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         } else {
           DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
           Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
-          if (workoutMode == APP_STATUS.IN_BREAK || workoutMode == APP_STATUS.IN_WORKOUT) {
+          if (workoutMode == APP_STATUS.IN_WORKOUT) {
             myDuration = myDuration + timeElapsed;
           }
           setState(() {
@@ -284,7 +284,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   Widget startStopButton() {
     int setID;
-    String type = 'clear';
+    String type = '';
 
     return workoutMode == APP_STATUS.IN_BREAK
         ? ElevatedButton(
