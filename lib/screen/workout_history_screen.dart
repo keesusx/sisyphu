@@ -75,9 +75,10 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
             ],
           ),
         ),
-        body: TabBarView(children: [
+        body: TabBarView(
+            children: [
           isLoading == true
-              ? Center(child: CircularProgressIndicator())
+              ? Center(child: Text('기록이 없습니다.'),)
               : Scrollbar(
                   controller: _scrollController,
                   child: ListView.separated(
