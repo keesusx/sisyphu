@@ -208,7 +208,6 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
 
   void fetchHistoryData() {
     List<Map<String, dynamic>> result = [];
-
     dates.forEachIndexed((index, element) {
       if (setListInGroup.containsKey(element.toString().substring(0, 10))) {
         setListInGroup.keys.toList().forEachIndexed((i, value) {

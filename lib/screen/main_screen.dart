@@ -121,7 +121,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           title: workoutMode == APP_STATUS.FINISH
               ? Container()
               : workoutMode == APP_STATUS.IN_BREAK
-                  ? Text(
+                  ? isWorkoutEmpty ? emptyWorkoutMessage() : Text(
                       '휴식중',
                       style: _onBreakTextStyle,
                     )
@@ -147,7 +147,24 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     }
                   });
                 },
-                icon: Icon(Icons.add)),
+                icon: isWorkoutEmpty ? Stack(
+                  alignment: AlignmentDirectional.center,
+                  children: [
+                    Container(
+                        width: 30,
+                        height: 30,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                            border: Border.all(
+                            color: Colors.pink,
+                            width: 2
+                          )
+                        )
+                    ),
+                    Icon(Icons.add, color: Colors.pink)
+                  ],
+                ) : Icon(Icons.add)
+            ),
             IconButton(
                 onPressed: () {
                   Navigator.push(context, MaterialPageRoute(builder: (context) => WorkoutHistoryScreen()));
@@ -164,7 +181,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             child: Column(
               children: [
                 workoutMode == APP_STATUS.IN_WORKOUT || workoutMode == APP_STATUS.IN_BREAK ? inWorkoutWidgets() : Container(),
-                menuLabel('오늘의 운동'),
+                isWorkoutEmpty ? Container() : menuLabel('오늘의 운동'),
                 todayCompletedSets()
               ],
             ),
@@ -174,6 +191,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         floatingActionButton: workoutMode == APP_STATUS.IN_BREAK
             ? FloatingActionButton(
                 child: Icon(Icons.stop),
+                backgroundColor: isWorkoutEmpty ? Colors.grey : null,
                 onPressed: isWorkoutEmpty
                     ? null
                     : () {
@@ -216,7 +234,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   Widget inWorkoutWidgets() {
     return Column(
       children: [
-        isWorkoutEmpty ? emptyWorkoutMessage() : workoutInfo(),
+        isWorkoutEmpty ? Container() : workoutInfo(),
         SizedBox(height: 20),
         counter(),
         SizedBox(height: 20),
@@ -502,10 +520,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   Widget emptyWorkoutMessage() {
-    return SizedBox(
-      height: 30,
-      child: Text('+ 버튼을 터치해서 운동을 추가해주세요.'),
-    );
+    return Text('운동을 추가 해보세요');
   }
 
   Widget controlPanel(int targetWeight, int targetReps) {
@@ -668,7 +683,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   Future<void> prefixIsWorkoutEmpty() async {
     List<Map<String, dynamic>> data = await DBHelper.instance.getWorkouts();
-
     if (data.length == 0) {
       setState(() {
         isWorkoutEmpty = true;
