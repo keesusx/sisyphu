@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
-import 'package:sisyphu/screen/main_screen.dart';
+import 'package:sisyphu/screen/main_screen/main_screen.dart';
 import 'package:wakelock/wakelock.dart';
 
 void main() {
@@ -19,6 +19,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Sisyphu',
       theme: ThemeData(
           appBarTheme:

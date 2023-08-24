@@ -3,10 +3,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sisyphu/screen/add_workout_screen.dart';
+import 'package:sisyphu/screen/main_screen/suggestion_widget.dart';
 import 'package:sisyphu/screen/workout_history_screen.dart';
-import '../db/evaluations.dart';
-import '../db/sets.dart';
-import '../db/db_helper.dart';
+import '../../db/evaluations.dart';
+import '../../db/sets.dart';
+import '../../db/db_helper.dart';
 import 'package:collection/collection.dart';
 
 enum TimerType { UP, DOWN }
@@ -113,7 +114,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   @override
   Widget build(BuildContext context) {
     TextStyle _onWorkoutTextStyle = TextStyle(color: Colors.pink);
-    TextStyle _onBreakTextStyle = TextStyle(color: Color(0xff04A777));
+    TextStyle _onBreakTextStyle = TextStyle(color: Colors.black);
 
     return Scaffold(
         appBar: AppBar(
@@ -181,7 +182,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             child: Column(
               children: [
                 workoutMode == APP_STATUS.IN_WORKOUT || workoutMode == APP_STATUS.IN_BREAK ? inWorkoutWidgets() : Container(),
-                isWorkoutEmpty ? Container() : menuLabel('오늘의 운동'),
+                isWorkoutEmpty ? Container() : menuLabel('오늘 한 운동'),
                 todayCompletedSets()
               ],
             ),
@@ -242,6 +243,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         SizedBox(height: 20),
         startStopButton(),
         SizedBox(height: 20),
+        // isWorkoutEmpty ? Container() : SuggestionWidget(),
+        SizedBox(height: 20),
+
       ],
     );
   }
@@ -250,7 +254,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Row(
-        children: [Text(text, style: TextStyle(fontSize: 20, color: Colors.pink))],
+        children: [Text(text, style: TextStyle(fontSize: 20))],
       ),
     );
   }
@@ -399,7 +403,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     final minutes = strDigits(myDuration.inMinutes.remainder(60));
     final seconds = strDigits(myDuration.inSeconds.remainder(60));
     return Container(
-      height: 140,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
@@ -434,7 +437,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['weight'].toString() + 'kg'),
                           Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'].toString() + '회'),
                           Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type'].toString()),
-                          Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['elapsed_time'].toString()),
                           IconButton(
                               onPressed: () {
                                 final textInputControllerWeight = TextEditingController();

@@ -93,6 +93,10 @@ flutter:
         - asset: fonts/The Jamsil 2 Light.ttf
         - asset: fonts/The Jamsil 3 Regular.ttf
         - asset: fonts/The Jamsil 4 Medium.ttf
-        - asset: fonts/The Jamsil 5 Bold.ttf
+        - asset: fonts/The Jamsil 6 ExtraBold.ttf
+
+    - family: CustomIcons
+      fonts:
+        - asset: fonts/icon/growth.ttf
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/custom-fonts/#from-packages

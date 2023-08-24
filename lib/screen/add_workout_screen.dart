@@ -237,7 +237,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       padding: const EdgeInsets.all(10.0),
       child: Row(
         children: [
-          Text(text, style: TextStyle(fontSize: 20, color: Colors.pink))
+          Text(text, style: TextStyle(fontSize: 20))
         ],
       ),
     );
