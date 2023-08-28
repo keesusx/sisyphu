@@ -639,8 +639,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
     if (todayTargetWorkouts.length > 0) {
       setNowWorkoutName(todayTargetWorkouts[workoutIndex]['name']);
-      // setNowWorkoutName(todayTargetWorkouts.first['name']);
-      // setProgressiveUI(todayTargetWorkouts.first['workout']);
     }
   }
 
