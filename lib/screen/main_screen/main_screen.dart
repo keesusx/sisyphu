@@ -5,6 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sisyphu/screen/add_workout_screen.dart';
 import 'package:sisyphu/screen/main_screen/suggestion_widget.dart';
 import 'package:sisyphu/screen/workout_history_screen.dart';
+import 'package:sisyphu/utils/analytics.dart';
 import '../../db/evaluations.dart';
 import '../../db/sets.dart';
 import '../../db/db_helper.dart';
@@ -133,6 +134,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           actions: [
             IconButton(
                 onPressed: () {
+                  Analytics.sendAnalyticsEvent('add_workout_icon');
                   Navigator.push(context, MaterialPageRoute(builder: (context) => AddWorkoutScreen())).then((value) async {
                     //Navigation Stack이 다시 돌아왔을때 콜백
                     ensureEmptyWorkout();
@@ -168,6 +170,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             ),
             IconButton(
                 onPressed: () {
+                  Analytics.sendAnalyticsEvent('history_icon');
                   Navigator.push(context, MaterialPageRoute(builder: (context) => WorkoutHistoryScreen()));
                 },
                 icon: Icon(Icons.history_rounded)),
@@ -196,7 +199,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 onPressed: isWorkoutEmpty
                     ? null
                     : () {
-                        showDialog(
+                  Analytics.sendAnalyticsEvent('finish_workout_button');
+
+                  showDialog(
                             context: context,
                             builder: (BuildContext context) => AlertDialog(title: Text('운동을 종료할까요?'), actions: [
                                   TextButton(
@@ -273,6 +278,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             workoutMode == APP_STATUS.IN_BREAK
                 ? IconButton(
                     onPressed: () async {
+                      Analytics.sendAnalyticsEvent('previous_arrow');
+
                       if (workoutIndex > 0) {
                         setWorkoutIndexDecrease();
                         setNowWorkoutName(todayTargetWorkouts[workoutIndex]['name']);
@@ -287,6 +294,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             workoutMode == APP_STATUS.IN_BREAK
                 ? IconButton(
                     onPressed: () async {
+                      Analytics.sendAnalyticsEvent('forward_arrow');
+
                       if (workoutIndex < todayTargetWorkouts.length) {
                         setWorkoutIndexIncrease();
                         setNowWorkoutName(todayTargetWorkouts[workoutIndex]['name']);
@@ -318,7 +327,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             onPressed: isWorkoutEmpty
                 ? null
                 : () {
-                    setAppStatus(APP_STATUS.IN_WORKOUT);
+              Analytics.sendAnalyticsEvent('start_counter_button');
+
+              setAppStatus(APP_STATUS.IN_WORKOUT);
                     if (countTimer != null) {
                       setState(() {
                         timerMinutes = 0;
@@ -344,6 +355,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               animationDuration: Duration(milliseconds: 300),
             ),
             onPressed: () async {
+              Analytics.sendAnalyticsEvent('stop_counter_button');
+
               setAppStatus(APP_STATUS.IN_BREAK);
               setState(() {
                 setNowSetNumber(nowSetNumber + 1);
