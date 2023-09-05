@@ -41,6 +41,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   late int nowSetNumber;
   late String nowWorkoutName;
   late double _scale;
+  late String signalMessagePrefix;
+  late String signalMessageSuffix;
 
   late List<Map<String, dynamic>> todayCompletedWorkouts;
   late List<Map<String, dynamic>> todayTargetWorkouts;
@@ -67,9 +69,30 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     timerSeconds = 0;
     nowSetNumber = 1;
     _scale = 100;
+    signalMessagePrefix = '';
+    signalMessageSuffix = '';
 
     setAppStatus(APP_STATUS.IN_BREAK);
     ensureEmptyWorkout();
+
+  }
+
+  void setSignalMessage (int workoutID) async {
+    List<Map<String, dynamic>> doneWorkoutList = await DBHelper.instance.getListWorkoutDone(workoutID);
+    List<Map<String, dynamic>> bodypartName = await DBHelper.instance.getBodyPartName(workoutID);
+    setState(() {
+      signalMessageSuffix = bodypartName.first['name'];
+    });
+
+    if (doneWorkoutList.length == 0) {
+      setState(() {
+        signalMessagePrefix = '다다음';
+      });
+    }else if (doneWorkoutList.length == 1) {
+      setState(() {
+        signalMessagePrefix = '다음';
+      });
+    }
   }
 
   @override
@@ -248,7 +271,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         SizedBox(height: 20),
         startStopButton(),
         SizedBox(height: 20),
-        // isWorkoutEmpty ? Container() : SuggestionWidget(),
+        isWorkoutEmpty ? Container() : nowSetNumber == 1 ? SuggestionWidget(prefix: signalMessagePrefix, suffix: signalMessageSuffix,) : Container(),
         SizedBox(height: 20),
 
       ],
@@ -288,6 +311,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       setNowSetNumber(temp + 1);
                       setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
                       // setProgressiveUI(todayTargetWorkouts[workoutIndex]['workout']);
+                      setSignalMessage(todayTargetWorkouts[workoutIndex]['workout']);
                     },
                     icon: Icon(Icons.arrow_back_ios_new_outlined))
                 : Container(),
@@ -304,6 +328,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       setNowSetNumber(temp + 1);
                       setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
                       // setProgressiveUI(todayTargetWorkouts[workoutIndex]['workout']);
+                      setSignalMessage(todayTargetWorkouts[workoutIndex]['workout']);
                     },
                     icon: Icon(Icons.arrow_forward_ios_outlined))
                 : Container()
@@ -613,7 +638,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     }
   }
 
-  void setTargetWorkout() async {
+  Future<void> setTargetWorkout() async {
     List<Map<String, dynamic>> recommendedWorkouts = await DBHelper.instance.getTodayTargetWorkoutId();
     List<Map<String, dynamic>> allWorkouts = await DBHelper.instance.getWorkouts();
     List<Map<String, dynamic>> targetWorkouts = List<Map<String, dynamic>>.from(recommendedWorkouts);
@@ -664,12 +689,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     }
   }
 
-  void initData() {
+  Future<void> initData() async {
     if (isWorkoutEmpty) {
       print('empty');
     } else {
       setTodayCompletedWorkouts();
-      setTargetWorkout();
+      await setTargetWorkout();
 
       Future.delayed(const Duration(milliseconds: 1500), () async {
         var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
@@ -707,9 +732,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     }
   }
 
-  void ensureEmptyWorkout() async {
+  Future<void> ensureEmptyWorkout() async {
     await prefixIsWorkoutEmpty();
-    initData();
+    await initData();
+    setSignalMessage(todayTargetWorkouts[workoutIndex]['workout']);
   }
 
   void setNowWorkoutName(String workoutName) {

@@ -3,7 +3,8 @@ import 'dart:io';
 import 'package:intl/intl.dart';
 import 'package:path/path.dart';
 import 'package:path_provider/path_provider.dart';
-import 'package:sisyphu/db/bodyparts_workouts.dart';
+import 'package:sisyphu/db/bodyparts.dart';
+import 'package:sisyphu/db/bodyparts.dart';
 import 'package:sisyphu/db/workouts.dart';
 import 'package:sqflite/sqflite.dart';
 import 'evaluations.dart';
@@ -22,7 +23,7 @@ class DBHelper {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'database.db');
     return await openDatabase(path,
-        version: 2,
+        version: 6,
         onCreate: _onCreate,
         // onConfigure: _onConfigure
         onUpgrade: _onUpgrade);
@@ -34,22 +35,18 @@ class DBHelper {
       await db.execute('DROP TABLE IF EXISTS sets');
       await db.execute('DROP TABLE IF EXISTS evaluations');
       await db.execute('DROP TABLE IF EXISTS bodyparts_workouts');
+      await db.execute('DROP TABLE IF EXISTS bodyparts');
       await _onCreate(db, newVersion);
     }
   }
 
-  Future _onConfigure(Database db) async {
-    await db.execute('DROP TABLE IF EXISTS workouts');
-    await db.execute('DROP TABLE IF EXISTS sets');
-    await db.execute('DROP TABLE IF EXISTS evaluations');
-    await db.execute('DROP TABLE IF EXISTS bodyparts_workouts');
-  }
 
   Future _onCreate(Database db, int version) async {
     await db.execute('''
     CREATE TABLE workouts(
       id INTEGER PRIMARY KEY,
       name TEXT NOT NULL UNIQUE,
+      body_part TEXT NOT NULL,
       created_at TEXT,
       updated_at TEXT
     )
@@ -72,6 +69,7 @@ class DBHelper {
       set_id INTEGER,
       type TEXT,
       result_num_time INTEGER,
+      note TEXT,
       elapsed_time TEXT,
       created_at TEXT,
       updated_at TEXT
@@ -79,14 +77,21 @@ class DBHelper {
     ''');
 
     await db.execute('''
-      CREATE TABLE bodyparts_workouts(
+      CREATE TABLE bodyparts(
       id INTEGER PRIMARY KEY,
-      workout INTEGER,
-      bodypart TEXT,
+      name TEXT,
       created_at TEXT,
       updated_at TEXT
       )
       ''');
+
+    await db.insert('bodyparts', BodyParts(id: 1, name: '가슴', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('bodyparts', BodyParts(id: 2, name: '어깨', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('bodyparts', BodyParts(id: 3, name: '팔', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('bodyparts', BodyParts(id: 4, name: '복근', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('bodyparts', BodyParts(id: 5, name: '등', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('bodyparts', BodyParts(id: 6, name: '하체', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+
   }
 
   Future<int> insertWorkouts(Workouts workout) async {
@@ -104,10 +109,6 @@ class DBHelper {
     return await db.insert('evaluations', evaluation.toMap());
   }
 
-  Future<int> insertBodypartsWorkouts(BodypartsWorkouts bodypartsWorkouts) async {
-    Database db = await instance.database;
-    return await db.insert('bodyparts_workouts', bodypartsWorkouts.toMap());
-  }
 
   Future<List<Map<String, dynamic>>> getWorkouts() async {
     Database db = await instance.database;
@@ -119,7 +120,7 @@ class DBHelper {
   Future<List<Sets>> getSets() async {
     Database db = await instance.database;
     var sets = await db.rawQuery('SELECT * FROM sets ORDER BY created_at DESC');
-    print(sets);
+    // print(sets);
     List<Sets> setList = sets.isNotEmpty ? sets.map((c) => Sets.fromMap(c)).toList() : [];
     return setList;
   }
@@ -127,7 +128,7 @@ class DBHelper {
   Future<List<Map<String, dynamic>>> getWorkoutWithBodyPart() async {
     Database db = await instance.database;
     List<Map<String, dynamic>> result =
-        await db.rawQuery('SELECT * FROM workouts, bodyparts_workouts WHERE workouts.id = bodyparts_workouts.workout ORDER BY workouts.created_at');
+        await db.rawQuery('SELECT workouts.name AS workout_name, bodyparts.name AS bodypart_name FROM workouts, bodyparts WHERE workouts.body_part = bodyparts.id ORDER BY workouts.created_at');
     return result;
   }
 
@@ -138,12 +139,11 @@ class DBHelper {
     return evaluationList;
   }
 
-  Future<List<BodypartsWorkouts>> getBodypartsWorkouts() async {
+  Future<List<BodyParts>> getBodyParts() async {
     Database db = await instance.database;
-    var bodypartsWorkouts = await db.query('bodyparts_workouts', orderBy: 'created_at');
-    List<BodypartsWorkouts> bodypartsWorkoutsList = bodypartsWorkouts.isNotEmpty ? bodypartsWorkouts.map((c) => BodypartsWorkouts.fromMap(c)).toList() : [];
-    // print(bodypartsWorkouts);
-    return bodypartsWorkoutsList;
+    var bodyparts = await db.query('bodyparts', orderBy: 'id');
+    List<BodyParts> bodypartList = bodyparts.isNotEmpty ? bodyparts.map((c) => BodyParts.fromMap(c)).toList() : [];
+    return bodypartList;
   }
 
   Future<List<Map<String, dynamic>>> getWorkoutedDates() async {
@@ -157,7 +157,7 @@ class DBHelper {
     String today = formatter.format(DateTime.now());
     Database db = await instance.database;
     List<Map<String, dynamic>> result = await db.rawQuery(
-        'SELECT (julianday(?) -  julianday(sets.created_at)) AS datediff, bodyparts_workouts.bodypart, COUNT(sets.id) AS count, MIN(sets.weight) AS minimum_weight, MAX(sets.weight) AS maximum_weight, ROUND(AVG(sets.weight), 1) AS average_weight, MIN(sets.target_num_time) AS minimum_reps, MAX(sets.target_num_time) AS maximum_reps, ROUND(AVG(sets.target_num_time), 1) AS average_reps, SUM(sets.target_num_time * sets.weight) AS volumn, workouts.name, sets.weight, sets.target_num_time, sets.created_at FROM sets, workouts, bodyparts_workouts WHERE bodyparts_workouts.workout = workouts.id AND sets.workout = workouts.id GROUP BY SUBSTR(sets.created_at, 0, 10) , workouts.id ORDER BY sets.created_at',
+        'SELECT bodyparts.name AS bodypart_name, (julianday(?) -  julianday(sets.created_at)) AS datediff, COUNT(sets.id) AS count, MIN(sets.weight) AS minimum_weight, MAX(sets.weight) AS maximum_weight, ROUND(AVG(sets.weight), 1) AS average_weight, MIN(sets.target_num_time) AS minimum_reps, MAX(sets.target_num_time) AS maximum_reps, ROUND(AVG(sets.target_num_time), 1) AS average_reps, SUM(sets.target_num_time * sets.weight) AS volumn, workouts.name, sets.weight, sets.target_num_time, sets.created_at FROM bodyparts, sets, workouts WHERE bodyparts.id = workouts.body_part AND sets.workout = workouts.id GROUP BY SUBSTR(sets.created_at, 0, 10), workouts.id ORDER BY sets.created_at',
         [today]);
     return result;
   }
@@ -221,7 +221,7 @@ class DBHelper {
       return [];
     }
     List<Map<String, dynamic>> targetWorkoutIds = await db.rawQuery(
-        'SELECT sets.workout, workouts.name, SUBSTR(sets.created_at, 0, 10) as workout_date FROM sets, workouts WHERE sets.workout = workouts.id AND SUBSTR(sets.created_at, 0, 10) > ? AND SUBSTR(sets.created_at, 0, 10) < ? GROUP BY sets.workout ORDER BY sets.created_at ASC',
+        'SELECT sets.workout, workouts.name, SUBSTR(sets.created_at, 0, 10) as workout_date FROM sets, workouts WHERE sets.workout = workouts.body_part AND SUBSTR(sets.created_at, 0, 10) > ? AND SUBSTR(sets.created_at, 0, 10) < ? GROUP BY sets.workout ORDER BY sets.created_at ASC',
         [secondLatestWorkoutDate.first['created_at'].toString().substring(0, 10), today]);
     return targetWorkoutIds;
   }
@@ -232,11 +232,27 @@ class DBHelper {
 
     for (int i = 0; i < workoutIdList.length; i++) {
       var temp = await db.rawQuery(
-          'SELECT workouts.id AS workout_id, workouts.name AS workout_name, evaluations.result_num_time AS reps, sets.weight, sets.created_at AS workout_date FROM sets, evaluations, workouts WHERE workouts.id = sets.workout AND evaluations.set_id = sets.id AND sets.workout = ? AND SUBSTR(sets.created_at, 0, 10) = ? ORDER BY sets.id ASC',
+          'SELECT workouts.body_part AS workout_id, workouts.name AS workout_name, evaluations.result_num_time AS reps, sets.weight, sets.created_at AS workout_date FROM sets, evaluations, workouts WHERE workouts.body_part = sets.workout AND evaluations.set_id = sets.id AND sets.workout = ? AND SUBSTR(sets.created_at, 0, 10) = ? ORDER BY sets.id ASC',
           [workoutIdList[i]['workout'], workoutIdList[i]['workout_date']]);
       result.addAll(temp);
     }
 
+    return result;
+  }
+
+  Future<List<Map<String, dynamic>>> getListWorkoutDone(int workoutID) async {
+    Database db = await instance.database;
+
+    var result = await db.rawQuery('SELECT SUBSTR(created_at, 0 ,10) AS done_date FROM sets WHERE workout = ? GROUP BY SUBSTR(created_at, 0 ,10) ORDER BY id DESC', [workoutID]);
+    // print(result);
+    return result;
+  }
+
+  Future<List<Map<String, dynamic>>> getBodyPartName(int workoutID) async {
+    Database db = await instance.database;
+
+    var result = await db.rawQuery('SELECT bodyparts.name FROM bodyparts INNER JOIN workouts ON workouts.body_part = bodyparts.id WHERE workouts.id = ?', [workoutID]);
+    // print(result);
     return result;
   }
 

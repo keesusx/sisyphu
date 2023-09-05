@@ -24,8 +24,6 @@ class ShowWorkoutScreen extends StatelessWidget {
             children: [
               Text('Workouts'),
               WorkoutList(),
-              Text('Bodyparts_Workouts'),
-              BodypartsWorkoutsList(),
               Text('Sets'),
               SetList(),
               Text('Evaluations'),
@@ -114,29 +112,4 @@ class ShowWorkoutScreen extends StatelessWidget {
         });
   }
 
-  Widget BodypartsWorkoutsList() {
-    return FutureBuilder<List<BodypartsWorkouts>>(
-        future: DBHelper.instance.getBodypartsWorkouts(),
-        builder: (BuildContext context,
-            AsyncSnapshot<List<BodypartsWorkouts>> snapshot) {
-          if (snapshot.hasData) {
-            return Container(
-              child: ListView.builder(
-                  itemCount: snapshot.data!.length,
-                  shrinkWrap: true,
-                  itemBuilder: (BuildContext context, int index) {
-                    return ListTile(
-                      leading: Text(snapshot.data![index].id.toString()),
-                      title: Text('workoutID:' +
-                          snapshot.data![index].workout.toString() +
-                          ' 부위: ' +
-                          snapshot.data![index].bodypart.toString()),
-                    );
-                  }),
-            );
-          } else {
-            return Center(child: Text('데이터가 없습니다.'));
-          }
-        });
-  }
 }

@@ -1,6 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
-import 'package:sisyphu/db/bodyparts_workouts.dart';
+import 'package:sisyphu/db/bodyparts.dart';
 import '../db/db_helper.dart';
 import '../db/workouts.dart';
 
@@ -16,12 +16,12 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
   late String createdAt;
   late String updatedAt;
   late String dropdownBodyPartValue;
-  late String dropdownWorkoutNameValue;
+  late int dropdownBodyPartIDValue;
 
   late List<Map<String, dynamic>> workouts;
   late Map<String, List> workoutsInGroup;
 
-  final List<String> bodyparts = ['가슴', '등', '어깨', '팔', '하체'];
+  late List<BodyParts> bodypartsFromDB;
 
   List<String> chestEntries = [
     '벤치 프레스',
@@ -71,12 +71,24 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
 
   @override
   void initState() {
-    dropdownBodyPartValue = bodyparts.first;
+    dropdownBodyPartValue = '';
+    dropdownBodyPartIDValue = 0;
+    bodypartsFromDB = [];
     workoutsInGroup = {};
     selectedEntries = chestEntries;
 
     Future.delayed(const Duration(milliseconds: 300), () async {
       setWorkoutList();
+      setBodyparts();
+    });
+  }
+
+  void setBodyparts() async {
+    var db = await DBHelper.instance.getBodyParts();
+    setState(() {
+      bodypartsFromDB = db;
+      dropdownBodyPartValue = bodypartsFromDB.first.name!;
+      dropdownBodyPartIDValue = bodypartsFromDB.first.id!;
     });
   }
 
@@ -85,8 +97,43 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
     workouts = await DBHelper.instance.getWorkoutWithBodyPart();
     setState(() {
       workoutsInGroup =
-          groupBy(workouts, (Map obj) => obj['bodypart']).cast<String, List>();
+          groupBy(workouts, (Map obj) => obj['bodypart_name']).cast<String, List>();
     });
+  }
+
+  void setBodypartsIDFromName(String value) {
+    switch (value) {
+      case '가슴':
+        setState(() {
+          dropdownBodyPartIDValue = 1;
+        });
+        break;
+      case '어깨':
+        setState(() {
+          dropdownBodyPartIDValue = 2;
+        });
+        break;
+      case '팔':
+        setState(() {
+          dropdownBodyPartIDValue = 3;
+        });
+        break;
+      case '복근':
+        setState(() {
+          dropdownBodyPartIDValue = 4;
+        });
+        break;
+      case '등':
+        setState(() {
+          dropdownBodyPartIDValue = 5;
+        });
+        break;
+      case '하체':
+        setState(() {
+          dropdownBodyPartIDValue = 6;
+        });
+        break;
+    }
   }
 
   void switchRecommendEntries(String value) {
@@ -148,15 +195,13 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                       DropdownButton(
                           hint: Text('종류'),
                           value: dropdownBodyPartValue,
-                          items: bodyparts.map((String value) {
-                            return DropdownMenuItem(
-                                value: value, child: Text(value));
-                          }).toList(),
+                          items: bodypartsFromDB.map((e) => DropdownMenuItem(value: e.name, child: Text(e.name!))).toList(),
                           onChanged: (String? value) {
                             setState(() {
                               dropdownBodyPartValue = value!;
                             });
                             switchRecommendEntries(value!);
+                            setBodypartsIDFromName(value!);
                           }),
                       Flexible(
                         fit: FlexFit.loose,
@@ -164,33 +209,21 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                           decoration: InputDecoration(
                               border: OutlineInputBorder(), labelText: '운동이름'),
                           controller: textController,
-                          // onChanged: (String newValue) {
-                          //   setState(() {
-                          //     textController.text = newValue;
-                          //   });
-                          // },
                         ),
                       ),
                       IconButton(
                           onPressed: () async {
                             createdAt = DateTime.now().toIso8601String();
                             updatedAt = DateTime.now().toIso8601String();
-                            if (textController.text != '' &&
-                                dropdownBodyPartValue != '') {
-                              var workoutID = await DBHelper.instance
-                                  .insertWorkouts(Workouts(
+                            if (textController.text != '' && dropdownBodyPartValue != '') {
+                              await DBHelper.instance.insertWorkouts(Workouts(
                                       name: textController.text,
                                       created_at: createdAt,
-                                      updated_at: updatedAt));
-                              await DBHelper.instance.insertBodypartsWorkouts(
-                                  BodypartsWorkouts(
-                                      workout: workoutID,
-                                      bodypart: dropdownBodyPartValue,
-                                      createdAt: createdAt,
-                                      updatedAt: updatedAt));
+                                      updated_at: updatedAt,
+                                      body_part: dropdownBodyPartIDValue));
                               setState(() {
                                 textController.clear();
-                                dropdownBodyPartValue = bodyparts.first;
+                                dropdownBodyPartValue = bodypartsFromDB.first.name!;
                               });
                               setWorkoutList();
                             }
@@ -266,7 +299,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                           Text(workoutsInGroup.entries
                               .toList()[index]
                               .value
-                              .toList()[i]['name']
+                              .toList()[i]['workout_name']
                               .toString()),
                         ],
                       ),

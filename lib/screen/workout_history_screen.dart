@@ -203,7 +203,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
       setListInGroup = groupBy(temp, (obj) {
         return obj['created_at'].toString().substring(0, 10);
       });
-      print('setsListInGroup $setListInGroup');
+      // print('setsListInGroup $setListInGroup');
     });
   }
 
@@ -224,7 +224,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                   "bodypart": setListInGroup.entries
                       .toList()[i]
                       .value
-                      .toList()[j]['bodypart']
+                      .toList()[j]['bodypart_name']
                       .toString(),
                   "datediff": setListInGroup.entries
                       .toList()[i]
@@ -314,9 +314,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
     const TextStyle _style = TextStyle(fontSize: 12);
 
     List<DataRow> dataRow = [];
-    for (int j = 0;
-        j < resultInGroup.entries.toList()[index].value.length;
-        j++) {
+    for (int j = 0; j < resultInGroup.entries.toList()[index].value.length; j++) {
       List<DataCell> dataCells = [];
       dataCells.add(DataCell(Text(
           resultInGroup.entries

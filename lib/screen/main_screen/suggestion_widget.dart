@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import '../../my_flutter_app_icons.dart';
 
 class SuggestionWidget extends StatefulWidget {
-  const SuggestionWidget({super.key});
+  final String prefix;
+  final String suffix;
+
+  const SuggestionWidget({super.key, required this.prefix, required this.suffix });
 
   @override
   State<SuggestionWidget> createState() => _SuggestionWidgetState();
@@ -31,7 +34,7 @@ class _SuggestionWidgetState extends State<SuggestionWidget> {
             child: Icon(CustomIcons.chart, color: Colors.pink, size: 16)
           ),
         ),
-        Text('오늘 무게를 조금 올려보는 건 어떨까요?')
+        Text('${widget.prefix} ${widget.suffix}운동 부터는 자동으로 무게,횟수가 설정돼요')
       ],
     );
   }
