@@ -60,7 +60,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
       length: 3,
       child: Scaffold(
         appBar: AppBar(
-          title: Text('운동 기록'),
+          title: Text('분석'),
           leading: IconButton(
             icon: Icon(Icons.arrow_back_ios),
             onPressed: () {
@@ -69,9 +69,9 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
           ),
           bottom: TabBar(
             tabs: [
-              Tab(text: 'Stroke'),
-              Tab(text: 'Overall'),
-              Tab(text: 'Partial'),
+              Tab(text: '기록'),
+              Tab(text: '부위별'),
+              Tab(text: '종합'),
             ],
           ),
         ),
@@ -156,8 +156,9 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                     },
                   ),
                 ),
-          Container(),
-          Container(),
+
+          Container(child: Center(child: Text('준비 중입니다'),),),
+          Container(child: Center(child: Text('준비 중입니다'),),),
         ]),
       ),
     );
@@ -192,7 +193,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
       result += element.toString() + ' ';
     });
     if (result == '휴식 ') {
-      return Icon(Icons.battery_charging_full_rounded);
+      return Icon(Icons.battery_charging_full_rounded, color: Colors.pink);
     }
     return Text(result);
   }
