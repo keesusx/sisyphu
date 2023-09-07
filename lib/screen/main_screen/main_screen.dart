@@ -209,7 +209,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               children: [
                 workoutMode == APP_STATUS.IN_WORKOUT || workoutMode == APP_STATUS.IN_BREAK ? inWorkoutWidgets() : Container(),
                 isWorkoutEmpty ? Container() : menuLabel('오늘 한 운동'),
-                todayCompletedSets()
+                todayCompletedSetsWidget()
               ],
             ),
           ),
@@ -453,7 +453,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     );
   }
 
-  Widget todayCompletedSets() {
+  Widget todayCompletedSetsWidget() {
     return Column(
       children: [
         ListView.builder(
@@ -474,14 +474,15 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           Text((todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i).toString() + '세트 '),
                           Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['weight'].toString() + 'kg'),
                           Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'].toString() + '회'),
-                          Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type'].toString()),
                           IconButton(
                               onPressed: () {
                                 final textInputControllerWeight = TextEditingController();
                                 final textInputControllerReps = TextEditingController();
+                                final textInputControllerNote = TextEditingController();
 
                                 var newWeight = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['weight'];
                                 var newReps = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'];
+                                var newNote = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['note'];
 
                                 showDialog(
                                     context: context,
@@ -500,6 +501,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                   keyboardType: TextInputType.number,
                                                   controller: textInputControllerReps,
                                                   decoration: InputDecoration(hintText: '${newReps}회'),
+                                                ),
+                                                TextField(
+                                                  keyboardType: TextInputType.multiline,
+                                                  controller: textInputControllerNote,
+                                                  decoration: InputDecoration(hintText: '${newNote}'),
                                                 )
                                               ],
                                             ),
@@ -515,6 +521,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                       DBHelper.updateReps(
                                                           todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['id'],
                                                           int.parse(textInputControllerReps.text));
+                                                    }
+                                                    if (textInputControllerNote.text.length > 0) {
+                                                      DBHelper.updateNote(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], textInputControllerNote.text);
                                                     }
                                                     setTodayCompletedWorkouts();
                                                     Navigator.of(context).pop();
@@ -621,7 +630,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       var result = await DBHelper.instance.getWholeSetsInfo(todayTargetWorkouts);
       var resultInWorkoutGroup = groupBy(result, (Map obj) => obj['workout_id']);
       resultInWorkoutGroup.keys.forEachIndexed((index, element) {
-        if (element == workoutID) {
+
+        if (element == workoutID.toString()) {
           //이전 수행했던 세트정보가 있으면 해당 세트 정보로 업데이트
           if (resultInWorkoutGroup.entries.toList()[index].value.length >= setInNumber) {
             setNowWorkoutWeight(resultInWorkoutGroup.entries.toList()[index].value.toList()[setInNumber - 1]['weight']);
@@ -696,7 +706,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       setTodayCompletedWorkouts();
       await setTargetWorkout();
 
-      Future.delayed(const Duration(milliseconds: 1500), () async {
+      Future.delayed(const Duration(milliseconds: 500), () async {
         var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
         setNowSetNumber(temp + 1);
         setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
@@ -840,7 +850,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   void reduceWeight(int targetWeight) {
-    if (this.targetWeight > 0) {
+    if (this.targetWeight - targetWeight >= 0) {
       setState(() {
         this.targetWeight -= targetWeight;
       });
@@ -854,7 +864,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   void reduceReps(int number) {
-    if (this.targetReps > 1) {
+    if (this.targetReps - number >= 1) {
       setState(() {
         this.targetReps -= number;
       });

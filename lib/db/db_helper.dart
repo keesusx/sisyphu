@@ -178,7 +178,7 @@ class DBHelper {
 
     Database db = await instance.database;
     result = await db.rawQuery(
-        'SELECT DISTINCT sets.id, sets.workout, sets.weight, sets.target_num_time, workouts.name, sets.created_at, evaluations.type, evaluations.elapsed_time FROM sets, workouts, evaluations WHERE SUBSTR(sets.created_at, 0, 10) = ? AND sets.workout = workouts.id AND evaluations.set_id = sets.id ORDER BY sets.created_at',
+        'SELECT DISTINCT evaluations.id as evaluationsID, sets.id, sets.workout, sets.weight, sets.target_num_time, workouts.name, sets.created_at, evaluations.type, evaluations.note, evaluations.elapsed_time FROM sets, workouts, evaluations WHERE SUBSTR(sets.created_at, 0, 10) = ? AND sets.workout = workouts.id AND evaluations.set_id = sets.id ORDER BY sets.created_at',
         [today]);
     return result;
   }
@@ -284,6 +284,12 @@ class DBHelper {
     Map<String, dynamic> data = {'id': setID, 'target_num_time': reps};
     Database db = await instance.database;
     await db.update('sets', data, where: 'id = ?', whereArgs: [setID]);
+  }
+
+  static void updateNote(int setID, String note) async {
+    Map<String, dynamic> data = {'note': note};
+    Database db = await instance.database;
+    await db.update('evaluations', data, where: 'id = ?', whereArgs: [setID]);
   }
 
   static void deleteSet(int id) async {
