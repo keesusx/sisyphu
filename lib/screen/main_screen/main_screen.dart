@@ -521,6 +521,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                         children: [
                                                           Expanded(
                                                               child: ListTile(
+                                                                horizontalTitleGap: -5,
                                                                 contentPadding: EdgeInsets.all(0),
                                                                 title: Text('쉬움', style: TextStyle(fontSize: 12),),
                                                                 leading: Radio<EVALUATION_TYPE>(
@@ -537,6 +538,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                           ),
                                                           Expanded(
                                                             child: ListTile(
+                                                              horizontalTitleGap: -5,
                                                               contentPadding: EdgeInsets.all(0),
                                                               dense: true,
                                                               title: Text('성공', style: TextStyle(fontSize: 12),),
@@ -554,6 +556,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                           ),
                                                           Expanded(
                                                             child: ListTile(
+                                                              horizontalTitleGap: -5,
                                                               contentPadding: EdgeInsets.all(0),
                                                               title: Text('실패', style: TextStyle(fontSize: 12),),
                                                               leading: Radio<EVALUATION_TYPE>(
