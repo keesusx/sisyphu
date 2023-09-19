@@ -11,28 +11,7 @@ import '../../db/sets.dart';
 import '../../db/db_helper.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
-
-enum TIMER_TYPE { UP, DOWN }
-enum APP_STATUS { FINISH, IN_WORKOUT, IN_BREAK }
-// enum EVALUATION_TYPE { EASY, SUCCESS, FAIL }
-
-enum EVALUATION_TYPE {
-  EASY('0', '쉬움'),
-  SUCCESS('1', '성공'),
-  FAIL('2', '실패');
-
-  const EVALUATION_TYPE(this.number, this.label);
-
-  final String number;
-  final String label;
-
-  static EVALUATION_TYPE strToEnum(String string) {
-    return EVALUATION_TYPE.values.byName(string);
-  }
-
-}
-
-
+import '../../utils/enums.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -96,8 +75,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
     setAppStatus(APP_STATUS.IN_BREAK);
     ensureEmptyWorkout();
-
-    print(EVALUATION_TYPE.SUCCESS.index);
 
   }
 
@@ -415,7 +392,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   weight: this.targetWeight,
                   createdAt: DateTime.now().toIso8601String(),
                   updatedAt: DateTime.now().toIso8601String()));
-              print('저장하는 type name' + _evaluationType.name);
               await DBHelper.instance.insertEvaluations(Evaluations(
                   set: setID,
                   type: _evaluationType.name,
@@ -493,9 +469,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     initiallyExpanded: false,
                     title: Text(todayCompletedWorkoutsInGroup.keys.toList()[index].toString()),
                     children: List<Widget>.generate(todayCompletedWorkoutsInGroup.entries.toList()[index].value.length, (int i) {
-                      // print(EVALUATION_TYPE.values.byName(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type']));
-
-
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
