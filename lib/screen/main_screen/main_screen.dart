@@ -494,7 +494,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) => AlertDialog(
-                                              title: Text('수정'),
+                                              title: Text((todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i).toString() + '세트 평가'),
                                               content: StatefulBuilder(
                                                 builder: (BuildContext context, StateSetter setState) {
                                                   return Column(
