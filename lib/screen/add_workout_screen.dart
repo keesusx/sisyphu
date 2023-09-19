@@ -189,8 +189,8 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                 SizedBox(
                   height: 40,
                   child: Row(
-                    mainAxisSize: MainAxisSize.max,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
                     children: [
                       DropdownButton(
                           hint: Text('종류'),
@@ -228,7 +228,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                               setWorkoutList();
                             }
                           },
-                          icon: Icon(Icons.add))
+                          icon: Icon(Icons.add_circle_rounded), color: Colors.pink)
                     ],
                   ),
                 ),
@@ -284,7 +284,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
           return Theme(
             data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
             child: ExpansionTile(
-                initiallyExpanded: false,
+                initiallyExpanded: true,
                 title: Text(workoutsInGroup.keys.toList()[index].toString()),
                 children: List<Widget>.generate(
                     workoutsInGroup.entries.toList()[index].value.length,
