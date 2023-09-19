@@ -23,7 +23,7 @@ class DBHelper {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'database.db');
     return await openDatabase(path,
-        version: 6,
+        version: 8,
         onCreate: _onCreate,
         // onConfigure: _onConfigure
         onUpgrade: _onUpgrade);
@@ -256,6 +256,13 @@ class DBHelper {
     return result;
   }
 
+  Future<List<Map<String, dynamic>>> getLatestSetsByWorkout(int workoutID) async {
+    Database db = await instance.database;
+    var result = await db.rawQuery('SELECT sets.created_at FROM sets, workouts WHERE workouts.id = ? ORDER BY sets.created_at', [workoutID]);
+    print(result);
+    return result;
+  }
+
   Future<List<Map<String, dynamic>>> getDateByWorkout(int workoutID) async {
     Database db = await instance.database;
 
@@ -288,6 +295,12 @@ class DBHelper {
 
   static void updateNote(int setID, String note) async {
     Map<String, dynamic> data = {'note': note};
+    Database db = await instance.database;
+    await db.update('evaluations', data, where: 'id = ?', whereArgs: [setID]);
+  }
+
+  static void updateEvaluationType(int setID, String type) async {
+    Map<String, dynamic> data = {'type': type};
     Database db = await instance.database;
     await db.update('evaluations', data, where: 'id = ?', whereArgs: [setID]);
   }

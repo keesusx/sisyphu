@@ -10,10 +10,29 @@ import '../../db/evaluations.dart';
 import '../../db/sets.dart';
 import '../../db/db_helper.dart';
 import 'package:collection/collection.dart';
+import 'package:flutter/foundation.dart';
 
-enum TimerType { UP, DOWN }
-
+enum TIMER_TYPE { UP, DOWN }
 enum APP_STATUS { FINISH, IN_WORKOUT, IN_BREAK }
+// enum EVALUATION_TYPE { EASY, SUCCESS, FAIL }
+
+enum EVALUATION_TYPE {
+  EASY('0', '쉬움'),
+  SUCCESS('1', '성공'),
+  FAIL('2', '실패');
+
+  const EVALUATION_TYPE(this.number, this.label);
+
+  final String number;
+  final String label;
+
+  static EVALUATION_TYPE strToEnum(String string) {
+    return EVALUATION_TYPE.values.byName(string);
+  }
+
+}
+
+
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -24,6 +43,9 @@ class MainScreen extends StatefulWidget {
 
 class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateMixin, WidgetsBindingObserver {
   final ScrollController _scrollController = ScrollController();
+
+  // 운동 평가 기본 셋팅: '성공'
+  EVALUATION_TYPE _evaluationType = EVALUATION_TYPE.SUCCESS;
 
   Timer? countTimer;
   Duration myDuration = Duration(minutes: 0, seconds: 00);
@@ -75,6 +97,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     setAppStatus(APP_STATUS.IN_BREAK);
     ensureEmptyWorkout();
 
+    print(EVALUATION_TYPE.SUCCESS.index);
+
   }
 
   void setSignalMessage (int workoutID) async {
@@ -85,10 +109,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     });
 
     if (doneWorkoutList.length == 0) {
-      setState(() {
-        signalMessagePrefix = '다다음';
-      });
-    }else if (doneWorkoutList.length == 1) {
       setState(() {
         signalMessagePrefix = '다음';
       });
@@ -209,7 +229,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               children: [
                 workoutMode == APP_STATUS.IN_WORKOUT || workoutMode == APP_STATUS.IN_BREAK ? inWorkoutWidgets() : Container(),
                 isWorkoutEmpty ? Container() : menuLabel('오늘 한 운동'),
-                todayCompletedSetsWidget()
+                todayCompletedSetsWidget(),
               ],
             ),
           ),
@@ -340,8 +360,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   Widget startStopButton() {
     int setID;
-    String type = '';
-
     return workoutMode == APP_STATUS.IN_BREAK
         ? ElevatedButton(
             style: ElevatedButton.styleFrom(
@@ -362,7 +380,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       });
                       resetTimer(this.timerMinutes, this.timerSeconds);
                     }
-                    startTimer(TimerType.UP);
+                    startTimer(TIMER_TYPE.UP);
                     _changeScale();
                   },
             child: Column(
@@ -397,9 +415,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   weight: this.targetWeight,
                   createdAt: DateTime.now().toIso8601String(),
                   updatedAt: DateTime.now().toIso8601String()));
+              print('저장하는 type name' + _evaluationType.name);
               await DBHelper.instance.insertEvaluations(Evaluations(
                   set: setID,
-                  type: type,
+                  type: _evaluationType.name,
+                  note: '',
                   resultNumTime: this.targetReps,
                   elapsedTime: '$minutes:$seconds',
                   createdAt: DateTime.now().toIso8601String(),
@@ -412,7 +432,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 });
                 resetTimer(this.timerMinutes, this.timerSeconds);
               }
-              startTimer(TimerType.UP);
+              startTimer(TIMER_TYPE.UP);
 
               setTodayCompletedWorkouts();
               setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
@@ -454,6 +474,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   Widget todayCompletedSetsWidget() {
+
+
+    EVALUATION_TYPE tempEvaluationType;
+
     return Column(
       children: [
         ListView.builder(
@@ -462,12 +486,16 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             controller: _scrollController,
             itemCount: todayCompletedWorkoutsInGroup.length,
             itemBuilder: (BuildContext context, int index) {
+
               return Theme(
                 data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
                     initiallyExpanded: false,
                     title: Text(todayCompletedWorkoutsInGroup.keys.toList()[index].toString()),
                     children: List<Widget>.generate(todayCompletedWorkoutsInGroup.entries.toList()[index].value.length, (int i) {
+                      // print(EVALUATION_TYPE.values.byName(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type']));
+
+
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
@@ -484,30 +512,97 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                 var newReps = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'];
                                 var newNote = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['note'];
 
+                                tempEvaluationType = EVALUATION_TYPE.values.byName(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type']);
+
                                 showDialog(
                                     context: context,
                                     builder: (BuildContext context) => AlertDialog(
                                             title: Text('수정'),
-                                            content: Column(
-                                              mainAxisSize: MainAxisSize.min,
-                                              children: [
-                                                TextField(
-                                                  keyboardType: TextInputType.number,
-                                                  inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                                  controller: textInputControllerWeight,
-                                                  decoration: InputDecoration(hintText: '${newWeight}kg'),
-                                                ),
-                                                TextField(
-                                                  keyboardType: TextInputType.number,
-                                                  controller: textInputControllerReps,
-                                                  decoration: InputDecoration(hintText: '${newReps}회'),
-                                                ),
-                                                TextField(
-                                                  keyboardType: TextInputType.multiline,
-                                                  controller: textInputControllerNote,
-                                                  decoration: InputDecoration(hintText: '${newNote}'),
-                                                )
-                                              ],
+                                            content: StatefulBuilder(
+                                              builder: (BuildContext context, StateSetter setState) {
+                                                return Column(
+                                                  mainAxisSize: MainAxisSize.min,
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text('중량'),
+                                                    TextField(
+                                                      keyboardType: TextInputType.number,
+                                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                      controller: textInputControllerWeight,
+                                                      decoration: InputDecoration(hintText: '${newWeight}kg'),
+                                                    ),
+                                                    SizedBox(height: 20),
+                                                    Text('횟수'),
+                                                    TextField(
+                                                      keyboardType: TextInputType.number,
+                                                      controller: textInputControllerReps,
+                                                      decoration: InputDecoration(hintText: '${newReps}회'),
+                                                    ),
+                                                    SizedBox(height: 20),
+                                                    Text('평가'),
+                                                    Row(
+                                                      children: [
+                                                        Expanded(
+                                                            child: ListTile(
+                                                              contentPadding: EdgeInsets.all(0),
+                                                              title: Text('쉬움', style: TextStyle(fontSize: 12),),
+                                                              leading: Radio<EVALUATION_TYPE>(
+                                                                  value: EVALUATION_TYPE.EASY,
+                                                                  groupValue: tempEvaluationType,
+                                                                  onChanged: (value) {
+                                                                    setState(() {
+                                                                      tempEvaluationType = value!;
+                                                                    });
+                                                                  },
+                                                              ),
+                                                            ),
+                                                          flex: 1,
+                                                        ),
+                                                        Expanded(
+                                                          child: ListTile(
+                                                            contentPadding: EdgeInsets.all(0),
+                                                            dense: true,
+                                                            title: Text('성공', style: TextStyle(fontSize: 12),),
+                                                            leading: Radio<EVALUATION_TYPE>(
+                                                                value: EVALUATION_TYPE.SUCCESS,
+                                                                groupValue: tempEvaluationType,
+                                                                onChanged: (value) {
+                                                                  setState(() {
+                                                                    tempEvaluationType = value!;
+                                                                  });
+                                                                },
+                                                            ),
+                                                          ),
+                                                          flex: 1,
+                                                        ),
+                                                        Expanded(
+                                                          child: ListTile(
+                                                            contentPadding: EdgeInsets.all(0),
+                                                            title: Text('실패', style: TextStyle(fontSize: 12),),
+                                                            leading: Radio<EVALUATION_TYPE>(
+                                                                value: EVALUATION_TYPE.FAIL,
+                                                                groupValue: tempEvaluationType,
+                                                                onChanged: (value) {
+                                                                  setState(() {
+                                                                    tempEvaluationType = value!;
+                                                                  });
+                                                                },
+                                                            ),
+                                                          ),
+                                                          flex: 1,
+                                                        )
+                                                      ],
+                                                    ),
+                                                    Text('개선할 점'),
+                                                    TextField(
+                                                      keyboardType: TextInputType.multiline,
+                                                      controller: textInputControllerNote,
+                                                      decoration: InputDecoration(hintText: '${newNote}'),
+                                                    )
+                                                  ],
+                                                );
+                                              },
+
                                             ),
                                             actions: [
                                               TextButton(
@@ -525,6 +620,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                     if (textInputControllerNote.text.length > 0) {
                                                       DBHelper.updateNote(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], textInputControllerNote.text);
                                                     }
+                                                    DBHelper.updateEvaluationType(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], tempEvaluationType.name);
                                                     setTodayCompletedWorkouts();
                                                     Navigator.of(context).pop();
                                                   },
@@ -802,12 +898,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     todayCompletedWorkoutsInGroup = groupBy(todayCompletedWorkouts, (Map obj) => obj['name']).cast<String, List>();
   }
 
-  void startTimer(TimerType type) {
+  void startTimer(TIMER_TYPE type) {
     switch (type) {
-      case TimerType.UP:
+      case TIMER_TYPE.UP:
         countTimer = Timer.periodic(Duration(seconds: 1), (_) => setCountUp());
         break;
-      case TimerType.DOWN:
+      case TIMER_TYPE.DOWN:
         countTimer = Timer.periodic(Duration(seconds: 1), (_) => setCountDown());
         break;
     }

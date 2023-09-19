@@ -102,7 +102,7 @@ class ShowWorkoutScreen extends StatelessWidget {
                       title: Text('setID ' +
                           snapshot.data![index].set.toString() +
                           ' ' +
-                          snapshot.data![index].type),
+                          snapshot.data![index].type.toString()),
                     );
                   }),
             );

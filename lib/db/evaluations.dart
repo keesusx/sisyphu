@@ -1,7 +1,7 @@
 class Evaluations {
   final int? id;
   final int? set;
-  final String type;
+  final String? type;
   final String? note;
   final int resultNumTime;
   final String elapsedTime;
