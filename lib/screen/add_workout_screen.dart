@@ -184,7 +184,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                menuLabel('운동 추가하기'),
+                menuLabel('어떤 운동을 하세요?'),
                 SizedBox(height: 20),
                 SizedBox(
                   height: 40,
