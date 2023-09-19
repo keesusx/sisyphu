@@ -13,6 +13,7 @@ import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import '../../utils/enums.dart';
 
+
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
 
@@ -72,10 +73,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     _scale = 100;
     signalMessagePrefix = '';
     signalMessageSuffix = '';
-
     setAppStatus(APP_STATUS.IN_BREAK);
     ensureEmptyWorkout();
-
   }
 
   void setSignalMessage (int workoutID) async {
@@ -451,7 +450,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   Widget todayCompletedSetsWidget() {
 
-
     EVALUATION_TYPE tempEvaluationType;
 
     return Column(
@@ -475,52 +473,72 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           Text((todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i).toString() + '세트 '),
                           Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['weight'].toString() + 'kg'),
                           Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'].toString() + '회'),
-                          IconButton(
-                              onPressed: () {
-                                final textInputControllerWeight = TextEditingController();
-                                final textInputControllerReps = TextEditingController();
-                                final textInputControllerNote = TextEditingController();
 
-                                var newWeight = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['weight'];
-                                var newReps = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'];
-                                var newNote = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['note'];
+                          Badge(
+                            isLabelVisible: isNewSet(i, DateTime.parse(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['created_at'])) ? true : false,
+                            child: IconButton(
+                                onPressed: () {
+                                  final textInputControllerWeight = TextEditingController();
+                                  final textInputControllerReps = TextEditingController();
+                                  final textInputControllerNote = TextEditingController();
 
-                                tempEvaluationType = EVALUATION_TYPE.values.byName(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type']);
+                                  var newWeight = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['weight'];
+                                  var newReps = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'];
+                                  var newNote = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['note'];
 
-                                showDialog(
-                                    context: context,
-                                    builder: (BuildContext context) => AlertDialog(
-                                            title: Text('수정'),
-                                            content: StatefulBuilder(
-                                              builder: (BuildContext context, StateSetter setState) {
-                                                return Column(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text('중량'),
-                                                    TextField(
-                                                      keyboardType: TextInputType.number,
-                                                      inputFormatters: [FilteringTextInputFormatter.digitsOnly],
-                                                      controller: textInputControllerWeight,
-                                                      decoration: InputDecoration(hintText: '${newWeight}kg'),
-                                                    ),
-                                                    SizedBox(height: 20),
-                                                    Text('횟수'),
-                                                    TextField(
-                                                      keyboardType: TextInputType.number,
-                                                      controller: textInputControllerReps,
-                                                      decoration: InputDecoration(hintText: '${newReps}회'),
-                                                    ),
-                                                    SizedBox(height: 20),
-                                                    Text('평가'),
-                                                    Row(
-                                                      children: [
-                                                        Expanded(
+                                  tempEvaluationType = EVALUATION_TYPE.values.byName(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type']);
+
+                                  showDialog(
+                                      context: context,
+                                      builder: (BuildContext context) => AlertDialog(
+                                              title: Text('수정'),
+                                              content: StatefulBuilder(
+                                                builder: (BuildContext context, StateSetter setState) {
+                                                  return Column(
+                                                    mainAxisSize: MainAxisSize.min,
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text('중량'),
+                                                      TextField(
+                                                        keyboardType: TextInputType.number,
+                                                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                                                        controller: textInputControllerWeight,
+                                                        decoration: InputDecoration(hintText: '${newWeight}kg'),
+                                                      ),
+                                                      SizedBox(height: 20),
+                                                      Text('횟수'),
+                                                      TextField(
+                                                        keyboardType: TextInputType.number,
+                                                        controller: textInputControllerReps,
+                                                        decoration: InputDecoration(hintText: '${newReps}회'),
+                                                      ),
+                                                      SizedBox(height: 20),
+                                                      Text('평가'),
+                                                      Row(
+                                                        children: [
+                                                          Expanded(
+                                                              child: ListTile(
+                                                                contentPadding: EdgeInsets.all(0),
+                                                                title: Text('쉬움', style: TextStyle(fontSize: 12),),
+                                                                leading: Radio<EVALUATION_TYPE>(
+                                                                    value: EVALUATION_TYPE.EASY,
+                                                                    groupValue: tempEvaluationType,
+                                                                    onChanged: (value) {
+                                                                      setState(() {
+                                                                        tempEvaluationType = value!;
+                                                                      });
+                                                                    },
+                                                                ),
+                                                              ),
+                                                            flex: 1,
+                                                          ),
+                                                          Expanded(
                                                             child: ListTile(
                                                               contentPadding: EdgeInsets.all(0),
-                                                              title: Text('쉬움', style: TextStyle(fontSize: 12),),
+                                                              dense: true,
+                                                              title: Text('성공', style: TextStyle(fontSize: 12),),
                                                               leading: Radio<EVALUATION_TYPE>(
-                                                                  value: EVALUATION_TYPE.EASY,
+                                                                  value: EVALUATION_TYPE.SUCCESS,
                                                                   groupValue: tempEvaluationType,
                                                                   onChanged: (value) {
                                                                     setState(() {
@@ -529,78 +547,62 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                                   },
                                                               ),
                                                             ),
-                                                          flex: 1,
-                                                        ),
-                                                        Expanded(
-                                                          child: ListTile(
-                                                            contentPadding: EdgeInsets.all(0),
-                                                            dense: true,
-                                                            title: Text('성공', style: TextStyle(fontSize: 12),),
-                                                            leading: Radio<EVALUATION_TYPE>(
-                                                                value: EVALUATION_TYPE.SUCCESS,
-                                                                groupValue: tempEvaluationType,
-                                                                onChanged: (value) {
-                                                                  setState(() {
-                                                                    tempEvaluationType = value!;
-                                                                  });
-                                                                },
-                                                            ),
+                                                            flex: 1,
                                                           ),
-                                                          flex: 1,
-                                                        ),
-                                                        Expanded(
-                                                          child: ListTile(
-                                                            contentPadding: EdgeInsets.all(0),
-                                                            title: Text('실패', style: TextStyle(fontSize: 12),),
-                                                            leading: Radio<EVALUATION_TYPE>(
-                                                                value: EVALUATION_TYPE.FAIL,
-                                                                groupValue: tempEvaluationType,
-                                                                onChanged: (value) {
-                                                                  setState(() {
-                                                                    tempEvaluationType = value!;
-                                                                  });
-                                                                },
+                                                          Expanded(
+                                                            child: ListTile(
+                                                              contentPadding: EdgeInsets.all(0),
+                                                              title: Text('실패', style: TextStyle(fontSize: 12),),
+                                                              leading: Radio<EVALUATION_TYPE>(
+                                                                  value: EVALUATION_TYPE.FAIL,
+                                                                  groupValue: tempEvaluationType,
+                                                                  onChanged: (value) {
+                                                                    setState(() {
+                                                                      tempEvaluationType = value!;
+                                                                    });
+                                                                  },
+                                                              ),
                                                             ),
-                                                          ),
-                                                          flex: 1,
-                                                        )
-                                                      ],
-                                                    ),
-                                                    Text('개선할 점'),
-                                                    TextField(
-                                                      keyboardType: TextInputType.multiline,
-                                                      controller: textInputControllerNote,
-                                                      decoration: InputDecoration(hintText: '${newNote}'),
-                                                    )
-                                                  ],
-                                                );
-                                              },
+                                                            flex: 1,
+                                                          )
+                                                        ],
+                                                      ),
+                                                      Text('개선할 점'),
+                                                      TextField(
+                                                        keyboardType: TextInputType.multiline,
+                                                        controller: textInputControllerNote,
+                                                        decoration: InputDecoration(hintText: '${newNote}'),
+                                                      )
+                                                    ],
+                                                  );
+                                                },
 
-                                            ),
-                                            actions: [
-                                              TextButton(
-                                                  onPressed: () {
-                                                    if (textInputControllerWeight.text.length > 0) {
-                                                      DBHelper.updateWeight(
-                                                          todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['id'],
-                                                          int.parse(textInputControllerWeight.text));
-                                                    }
-                                                    if (textInputControllerReps.text.length > 0) {
-                                                      DBHelper.updateReps(
-                                                          todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['id'],
-                                                          int.parse(textInputControllerReps.text));
-                                                    }
-                                                    if (textInputControllerNote.text.length > 0) {
-                                                      DBHelper.updateNote(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], textInputControllerNote.text);
-                                                    }
-                                                    DBHelper.updateEvaluationType(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], tempEvaluationType.name);
-                                                    setTodayCompletedWorkouts();
-                                                    Navigator.of(context).pop();
-                                                  },
-                                                  child: const Text('OK'))
-                                            ]));
-                              },
-                              icon: Icon(Icons.edit)),
+                                              ),
+                                              actions: [
+                                                TextButton(
+                                                    onPressed: () {
+                                                      if (textInputControllerWeight.text.length > 0) {
+                                                        DBHelper.updateWeight(
+                                                            todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['id'],
+                                                            int.parse(textInputControllerWeight.text));
+                                                      }
+                                                      if (textInputControllerReps.text.length > 0) {
+                                                        DBHelper.updateReps(
+                                                            todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['id'],
+                                                            int.parse(textInputControllerReps.text));
+                                                      }
+                                                      if (textInputControllerNote.text.length > 0) {
+                                                        DBHelper.updateNote(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], textInputControllerNote.text);
+                                                      }
+                                                      DBHelper.updateEvaluationType(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], tempEvaluationType.name);
+                                                      setTodayCompletedWorkouts();
+                                                      Navigator.of(context).pop();
+                                                    },
+                                                    child: const Text('OK'))
+                                              ]));
+                                },
+                                icon: Icon(Icons.edit)),
+                          ),
                           IconButton(
                             icon: Icon(Icons.delete),
                             onPressed: () {
@@ -937,6 +939,18 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       setState(() {
         this.targetReps -= number;
       });
+    }
+  }
+
+  bool isNewSet(int index, DateTime setDate) {
+    final int TIME_DIFFERENCE = 10;
+    DateTime now = DateTime.now();
+    int difference = now.difference(setDate).inMinutes;
+
+    if (index == 0 && difference < TIME_DIFFERENCE) {
+      return true;
+    } else {
+      return false;
     }
   }
 
