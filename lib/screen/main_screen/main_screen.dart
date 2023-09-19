@@ -12,6 +12,7 @@ import '../../db/db_helper.dart';
 import 'package:collection/collection.dart';
 import 'package:flutter/foundation.dart';
 import '../../utils/enums.dart';
+import 'package:badges/badges.dart' as badges;
 
 
 class MainScreen extends StatefulWidget {
@@ -460,7 +461,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             controller: _scrollController,
             itemCount: todayCompletedWorkoutsInGroup.length,
             itemBuilder: (BuildContext context, int index) {
-
               return Theme(
                 data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
@@ -474,8 +474,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['weight'].toString() + 'kg'),
                           Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'].toString() + '회'),
 
-                          Badge(
-                            isLabelVisible: isNewSet(i, DateTime.parse(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['created_at'])) ? true : false,
+                          badges.Badge(
+                            position: badges.BadgePosition.topEnd(top: 2, end: 5),
+                            badgeContent:
+                            Icon(Icons.circle_rounded, color: Colors.pink, size: 2),
+                            showBadge: isNewSet(i, DateTime.parse(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['created_at'])) ? true : false,
                             child: IconButton(
                                 onPressed: () {
                                   final textInputControllerWeight = TextEditingController();
