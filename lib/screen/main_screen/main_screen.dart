@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sisyphu/screen/add_workout_screen.dart';
+import 'package:sisyphu/screen/main_screen/suggestion.dart';
 import 'package:sisyphu/screen/main_screen/suggestion_widget.dart';
 import 'package:sisyphu/screen/workout_history_screen.dart';
 import 'package:sisyphu/utils/analytics.dart';
@@ -32,6 +33,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   Duration myDuration = Duration(minutes: 0, seconds: 00);
   bool wasPause = false;
   bool isWorkoutEmpty = true;
+  Suggestion suggestion = Suggestion(setNumber: 0);
 
   late APP_STATUS workoutMode;
 
@@ -42,6 +44,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   late int targetReps;
   late int newReps;
   late int nowSetNumber;
+  late int nowWorkoutID;
   late String nowWorkoutName;
   late double _scale;
   late String signalMessagePrefix;
@@ -59,6 +62,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     WidgetsBinding.instance.addObserver(this);
     super.initState();
     nowWorkoutName = '';
+    nowWorkoutID = 0;
     targetWeight = 0;
     newWeight = 0;
     targetReps = 1;
@@ -72,24 +76,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     timerSeconds = 0;
     nowSetNumber = 1;
     _scale = 100;
-    signalMessagePrefix = '';
-    signalMessageSuffix = '';
     setAppStatus(APP_STATUS.IN_BREAK);
     ensureEmptyWorkout();
-  }
+    // var temp = DBHelper.instance.getLatestSetHistory(3);
 
-  void setSignalMessage (int workoutID) async {
-    List<Map<String, dynamic>> doneWorkoutList = await DBHelper.instance.getListWorkoutDone(workoutID);
-    List<Map<String, dynamic>> bodypartName = await DBHelper.instance.getBodyPartName(workoutID);
-    setState(() {
-      signalMessageSuffix = bodypartName.first['name'];
-    });
-
-    if (doneWorkoutList.length == 0) {
-      setState(() {
-        signalMessagePrefix = '다음';
-      });
-    }
   }
 
   @override
@@ -268,9 +258,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         SizedBox(height: 20),
         startStopButton(),
         SizedBox(height: 20),
-        isWorkoutEmpty ? Container() : nowSetNumber == 1 ? SuggestionWidget(prefix: signalMessagePrefix, suffix: signalMessageSuffix,) : Container(),
+        SuggestionWidget(setNumber: nowSetNumber, workoutID: nowWorkoutID),
         SizedBox(height: 20),
-
       ],
     );
   }
@@ -307,8 +296,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
                       setNowSetNumber(temp + 1);
                       setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
+                      setNowWorkoutID(todayTargetWorkouts[workoutIndex]['workout']);
                       // setProgressiveUI(todayTargetWorkouts[workoutIndex]['workout']);
-                      setSignalMessage(todayTargetWorkouts[workoutIndex]['workout']);
                     },
                     icon: Icon(Icons.arrow_back_ios_new_outlined))
                 : Container(),
@@ -320,12 +309,13 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       if (workoutIndex < todayTargetWorkouts.length) {
                         setWorkoutIndexIncrease();
                         setNowWorkoutName(todayTargetWorkouts[workoutIndex]['name']);
+                        setNowWorkoutID(todayTargetWorkouts[workoutIndex]['workout']);
+
                       }
                       var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
                       setNowSetNumber(temp + 1);
                       setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
                       // setProgressiveUI(todayTargetWorkouts[workoutIndex]['workout']);
-                      setSignalMessage(todayTargetWorkouts[workoutIndex]['workout']);
                     },
                     icon: Icon(Icons.arrow_forward_ios_outlined))
                 : Container()
@@ -390,6 +380,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   workout: todayTargetWorkouts[workoutIndex]['workout'],
                   targetNumTime: this.targetReps,
                   weight: this.targetWeight,
+                  setOrder: this.nowSetNumber - 1,
                   createdAt: DateTime.now().toIso8601String(),
                   updatedAt: DateTime.now().toIso8601String()));
               await DBHelper.instance.insertEvaluations(Evaluations(
@@ -428,9 +419,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           );
   }
 
-  void _changeScale() {
-    setState(() => _scale = _scale == 100 ? 120 : 100);
-  }
+
 
   Widget counter() {
     String strDigits(int n) => n.toString().padLeft(2, '0');
@@ -691,6 +680,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     );
   }
 
+  void _changeScale() {
+    setState(() => _scale = _scale == 100 ? 120 : 100);
+  }
+
   void setLatestWeightReps(int workoutID) async {
     var latestWeightReps = await DBHelper.instance.getLatestWeightsRepsToday(workoutID);
     if (latestWeightReps.isNotEmpty) {
@@ -707,7 +700,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       var result = await DBHelper.instance.getWholeSetsInfo(todayTargetWorkouts);
       var resultInWorkoutGroup = groupBy(result, (Map obj) => obj['workout_id']);
       resultInWorkoutGroup.keys.forEachIndexed((index, element) {
-
         if (element == workoutID.toString()) {
           //이전 수행했던 세트정보가 있으면 해당 세트 정보로 업데이트
           if (resultInWorkoutGroup.entries.toList()[index].value.length >= setInNumber) {
@@ -752,7 +744,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       }
     }
 
-    if (recommendedWorkouts.length > 0) {
+    if (recommendedWorkouts.isNotEmpty) {
       setState(() {
         todayTargetWorkouts = targetWorkouts;
       });
@@ -787,6 +779,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
         setNowSetNumber(temp + 1);
         setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
+        setNowWorkoutID(todayTargetWorkouts[workoutIndex]['workout']);
       });
     }
   }
@@ -822,12 +815,17 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   Future<void> ensureEmptyWorkout() async {
     await prefixIsWorkoutEmpty();
     await initData();
-    setSignalMessage(todayTargetWorkouts[workoutIndex]['workout']);
   }
 
   void setNowWorkoutName(String workoutName) {
     setState(() {
       nowWorkoutName = workoutName;
+    });
+  }
+
+  void setNowWorkoutID(int id) {
+    setState(() {
+      nowWorkoutID = id;
     });
   }
 

@@ -23,7 +23,7 @@ class DBHelper {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'database.db');
     return await openDatabase(path,
-        version: 8,
+        version: 23,
         onCreate: _onCreate,
         // onConfigure: _onConfigure
         onUpgrade: _onUpgrade);
@@ -58,6 +58,7 @@ class DBHelper {
       workout INTEGER,
       target_num_time INTEGER,
       weight INTEGER,
+      set_order INTEGER,
       created_at TEXT,
       updated_at TEXT
     )
@@ -91,6 +92,34 @@ class DBHelper {
     await db.insert('bodyparts', BodyParts(id: 4, name: '복근', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
     await db.insert('bodyparts', BodyParts(id: 5, name: '등', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
     await db.insert('bodyparts', BodyParts(id: 6, name: '하체', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+
+
+    await db.insert('sets', Sets(id: 1, setOrder: 1, workout: 1, targetNumTime: 1, weight: 10, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('sets', Sets(id: 2, setOrder: 2, workout: 1, targetNumTime: 2, weight: 20, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('sets', Sets(id: 3, setOrder: 3, workout: 1, targetNumTime: 3, weight: 30, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+
+    await db.insert('evaluations', Evaluations(id: 1, set: 1, elapsedTime: '00', resultNumTime: 1, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('evaluations', Evaluations(id: 2, set: 2, elapsedTime: '00', resultNumTime: 2, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('evaluations', Evaluations(id: 3, set: 3, elapsedTime: '00', resultNumTime: 3, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+
+
+    await db.insert('sets', Sets(id: 4, setOrder: 1, workout: 1, targetNumTime: 1, weight: 10, createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+    await db.insert('sets', Sets(id: 5, setOrder: 2, workout: 1, targetNumTime: 2, weight: 20, createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+    await db.insert('sets', Sets(id: 6, setOrder: 3, workout: 1, targetNumTime: 3, weight: 30, createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+
+    await db.insert('evaluations', Evaluations(id: 4, set: 4, elapsedTime: '00', resultNumTime: 1, type: 'SUCCESS', note: '너무 무겁다..', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+    await db.insert('evaluations', Evaluations(id: 5, set: 5, elapsedTime: '00', resultNumTime: 2, type: 'SUCCESS', note: '조금 쉬운데?', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+    await db.insert('evaluations', Evaluations(id: 6, set: 6, elapsedTime: '00', resultNumTime: 3, type: 'SUCCESS', note: 'test', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+
+
+
+    await db.insert('sets', Sets(id: 7, setOrder: 1, workout: 2, targetNumTime: 1, weight: 10, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('sets', Sets(id: 8, setOrder: 2, workout: 2, targetNumTime: 2, weight: 20, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('sets', Sets(id: 9, setOrder: 3, workout: 2, targetNumTime: 3, weight: 30, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+
+    await db.insert('evaluations', Evaluations(id: 7, set: 7, elapsedTime: '00', resultNumTime: 1, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('evaluations', Evaluations(id: 8, set: 8, elapsedTime: '00', resultNumTime: 2, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    await db.insert('evaluations', Evaluations(id: 9, set: 9, elapsedTime: '00', resultNumTime: 3, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
 
   }
 
@@ -223,6 +252,7 @@ class DBHelper {
     List<Map<String, dynamic>> targetWorkoutIds = await db.rawQuery(
         'SELECT sets.workout, workouts.name, SUBSTR(sets.created_at, 0, 10) as workout_date FROM sets, workouts WHERE sets.workout = workouts.body_part AND SUBSTR(sets.created_at, 0, 10) > ? AND SUBSTR(sets.created_at, 0, 10) < ? GROUP BY sets.workout ORDER BY sets.created_at ASC',
         [secondLatestWorkoutDate.first['created_at'].toString().substring(0, 10), today]);
+
     return targetWorkoutIds;
   }
 
@@ -240,12 +270,25 @@ class DBHelper {
     return result;
   }
 
-  Future<List<Map<String, dynamic>>> getListWorkoutDone(int workoutID) async {
+  Future<List<Map<String, dynamic>>> getLatestSetHistory(int workoutID) async {
     Database db = await instance.database;
+    DateFormat formatter = DateFormat('yyyy-MM-dd');
+    String today = formatter.format(DateTime.now());
 
-    var result = await db.rawQuery('SELECT SUBSTR(created_at, 0 ,10) AS done_date FROM sets WHERE workout = ? GROUP BY SUBSTR(created_at, 0 ,10) ORDER BY id DESC', [workoutID]);
-    // print(result);
-    return result;
+    var result;
+
+    print('[getLatestSetHistory() workoutID]' + workoutID.toString());
+
+    var recentDates = await db.rawQuery('SELECT SUBSTR(created_at, 0 ,10) AS done_date FROM sets WHERE workout = ? AND NOT SUBSTR(created_at, 0 ,10) IN (?) GROUP BY SUBSTR(created_at, 0 ,10) ORDER BY id DESC', [workoutID, today]);
+    print('[getLatestSetHistory()]' + recentDates.toString());
+    if(recentDates.length > 0) {
+       result = await db.rawQuery(
+          'SELECT sets.set_order, sets.weight, evaluations.result_num_time, evaluations.type, evaluations.note, SUBSTR(sets.created_at, 0 ,10) AS created_at FROM sets INNER JOIN evaluations ON evaluations.set_id = sets.id WHERE sets.workout = ? AND SUBSTR(sets.created_at, 0, 10) = ? ORDER BY sets.created_at ASC',
+          [workoutID, recentDates[0]['done_date']]);
+       // print(result);
+       return result;
+    }
+    return [];
   }
 
   Future<List<Map<String, dynamic>>> getBodyPartName(int workoutID) async {
@@ -253,13 +296,6 @@ class DBHelper {
 
     var result = await db.rawQuery('SELECT bodyparts.name FROM bodyparts INNER JOIN workouts ON workouts.body_part = bodyparts.id WHERE workouts.id = ?', [workoutID]);
     // print(result);
-    return result;
-  }
-
-  Future<List<Map<String, dynamic>>> getLatestSetsByWorkout(int workoutID) async {
-    Database db = await instance.database;
-    var result = await db.rawQuery('SELECT sets.created_at FROM sets, workouts WHERE workouts.id = ? ORDER BY sets.created_at', [workoutID]);
-    print(result);
     return result;
   }
 
@@ -280,6 +316,15 @@ class DBHelper {
     }
     return volumes;
   }
+
+  Future<List<Map<String, dynamic>>> getworkoutDates(int workoutID) async {
+    Database db = await instance.database;
+
+    var result = await db.rawQuery('SELECT SUBSTR(created_at, 0, 10) FROM sets WHERE workout = ? GROUP BY SUBSTR(created_at, 0, 10) ORDER BY id DESC LIMIT 3', [workoutID]);
+    // print(result);
+    return result;
+  }
+
 
   static void updateWeight(int setID, int weight) async {
     Map<String, dynamic> data = {'id': setID, 'weight': weight};
