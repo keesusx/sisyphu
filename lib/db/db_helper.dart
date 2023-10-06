@@ -91,33 +91,33 @@ class DBHelper {
     await db.insert('bodyparts', BodyParts(id: 4, name: '복근', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
     await db.insert('bodyparts', BodyParts(id: 5, name: '등', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
     await db.insert('bodyparts', BodyParts(id: 6, name: '하체', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-
-
-    await db.insert('sets', Sets(id: 1, setOrder: 1, workout: 1, targetNumTime: 1, weight: 10, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-    await db.insert('sets', Sets(id: 2, setOrder: 2, workout: 1, targetNumTime: 2, weight: 20, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-    await db.insert('sets', Sets(id: 3, setOrder: 3, workout: 1, targetNumTime: 3, weight: 30, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-
-    await db.insert('evaluations', Evaluations(id: 1, set: 1, elapsedTime: '00', resultNumTime: 1, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-    await db.insert('evaluations', Evaluations(id: 2, set: 2, elapsedTime: '00', resultNumTime: 2, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-    await db.insert('evaluations', Evaluations(id: 3, set: 3, elapsedTime: '00', resultNumTime: 3, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-
-
-    await db.insert('sets', Sets(id: 4, setOrder: 1, workout: 1, targetNumTime: 1, weight: 10, createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
-    await db.insert('sets', Sets(id: 5, setOrder: 2, workout: 1, targetNumTime: 2, weight: 20, createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
-    await db.insert('sets', Sets(id: 6, setOrder: 3, workout: 1, targetNumTime: 3, weight: 30, createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
-
-    await db.insert('evaluations', Evaluations(id: 4, set: 4, elapsedTime: '00', resultNumTime: 1, type: 'SUCCESS', note: '너무 무겁다..', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
-    await db.insert('evaluations', Evaluations(id: 5, set: 5, elapsedTime: '00', resultNumTime: 2, type: 'SUCCESS', note: '조금 쉬운데?', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
-    await db.insert('evaluations', Evaluations(id: 6, set: 6, elapsedTime: '00', resultNumTime: 3, type: 'SUCCESS', note: 'test', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
-
-
-    await db.insert('sets', Sets(id: 7, setOrder: 1, workout: 2, targetNumTime: 1, weight: 10, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-    await db.insert('sets', Sets(id: 8, setOrder: 2, workout: 2, targetNumTime: 2, weight: 20, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-    await db.insert('sets', Sets(id: 9, setOrder: 3, workout: 2, targetNumTime: 3, weight: 30, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-
-    await db.insert('evaluations', Evaluations(id: 7, set: 7, elapsedTime: '00', resultNumTime: 1, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-    await db.insert('evaluations', Evaluations(id: 8, set: 8, elapsedTime: '00', resultNumTime: 2, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
-    await db.insert('evaluations', Evaluations(id: 9, set: 9, elapsedTime: '00', resultNumTime: 3, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    //
+    //
+    // await db.insert('sets', Sets(id: 1, setOrder: 1, workout: 1, targetNumTime: 1, weight: 10, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    // await db.insert('sets', Sets(id: 2, setOrder: 2, workout: 1, targetNumTime: 2, weight: 20, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    // await db.insert('sets', Sets(id: 3, setOrder: 3, workout: 1, targetNumTime: 3, weight: 30, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    //
+    // await db.insert('evaluations', Evaluations(id: 1, set: 1, elapsedTime: '00', resultNumTime: 1, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    // await db.insert('evaluations', Evaluations(id: 2, set: 2, elapsedTime: '00', resultNumTime: 2, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    // await db.insert('evaluations', Evaluations(id: 3, set: 3, elapsedTime: '00', resultNumTime: 3, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    //
+    //
+    // await db.insert('sets', Sets(id: 4, setOrder: 1, workout: 1, targetNumTime: 1, weight: 10, createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+    // await db.insert('sets', Sets(id: 5, setOrder: 2, workout: 1, targetNumTime: 2, weight: 20, createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+    // await db.insert('sets', Sets(id: 6, setOrder: 3, workout: 1, targetNumTime: 3, weight: 30, createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+    //
+    // await db.insert('evaluations', Evaluations(id: 4, set: 4, elapsedTime: '00', resultNumTime: 1, type: 'SUCCESS', note: '너무 무겁다..', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+    // await db.insert('evaluations', Evaluations(id: 5, set: 5, elapsedTime: '00', resultNumTime: 2, type: 'SUCCESS', note: '조금 쉬운데?', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+    // await db.insert('evaluations', Evaluations(id: 6, set: 6, elapsedTime: '00', resultNumTime: 3, type: 'SUCCESS', note: 'test', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
+    //
+    //
+    // await db.insert('sets', Sets(id: 7, setOrder: 1, workout: 2, targetNumTime: 1, weight: 10, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    // await db.insert('sets', Sets(id: 8, setOrder: 2, workout: 2, targetNumTime: 2, weight: 20, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    // await db.insert('sets', Sets(id: 9, setOrder: 3, workout: 2, targetNumTime: 3, weight: 30, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    //
+    // await db.insert('evaluations', Evaluations(id: 7, set: 7, elapsedTime: '00', resultNumTime: 1, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    // await db.insert('evaluations', Evaluations(id: 8, set: 8, elapsedTime: '00', resultNumTime: 2, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
+    // await db.insert('evaluations', Evaluations(id: 9, set: 9, elapsedTime: '00', resultNumTime: 3, type: 'SUCCESS', note: 'test', createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
 
   }
 
