@@ -49,6 +49,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   late double _scale;
   late String signalMessagePrefix;
   late String signalMessageSuffix;
+  late num latestVolumn;
+  late num todayVolumn;
 
   late List<Map<String, dynamic>> todayCompletedWorkouts;
   late List<Map<String, dynamic>> todayTargetWorkouts;
@@ -56,6 +58,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   late Map<String, List> todayCompletedWorkoutsInGroup;
   late int workoutIndex;
+
+  late List<Map<String, dynamic>> history;
+  late int lastSetNumber;
+  late String message;
+  late SUGGESTION_INDEX suggestion_index;
 
   @override
   void initState() {
@@ -75,11 +82,17 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     timerMinutes = 0;
     timerSeconds = 0;
     nowSetNumber = 1;
+    latestVolumn = 0;
+    todayVolumn = 0;
     _scale = 100;
+    history = [];
+    lastSetNumber = 0;
+    message = '';
+    suggestion_index = SUGGESTION_INDEX.LATEST_SET_INFO;
+
+
     setAppStatus(APP_STATUS.IN_BREAK);
     ensureEmptyWorkout();
-    // var temp = DBHelper.instance.getLatestSetHistory(3);
-
   }
 
   @override
@@ -94,13 +107,17 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     var prefs = await SharedPreferences.getInstance();
     switch (state) {
       case AppLifecycleState.resumed:
+        print("app in active");
         if (wasPause == false) {
         } else {
           DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
           Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
+          print(timeElapsed);
+
           if (workoutMode == APP_STATUS.IN_WORKOUT) {
-            myDuration = myDuration + timeElapsed;
+            // myDuration = myDuration + timeElapsed;
           }
+
           setState(() {
             wasPause = false;
           });
@@ -110,11 +127,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         print("app in inactive");
         break;
       case AppLifecycleState.paused:
+        print("app in paused");
+        print('stop at $myDuration');
         prefs.setString('timerStartTime', DateTime.now().toString());
         setState(() {
           wasPause = true;
         });
-        print("app in paused");
         break;
       case AppLifecycleState.detached:
         print("app in detached");
@@ -133,14 +151,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           title: workoutMode == APP_STATUS.FINISH
               ? Container()
               : workoutMode == APP_STATUS.IN_BREAK
-                  ? isWorkoutEmpty ? emptyWorkoutMessage() : Text(
-                      '휴식중',
-                      style: _onBreakTextStyle,
-                    )
-                  : Text(
-                      '운동중',
-                      style: _onWorkoutTextStyle,
-                    ),
+                  ? isWorkoutEmpty ? emptyWorkoutMessage() : Text('휴식중',style: _onBreakTextStyle)
+                  : Text('운동중',style: _onWorkoutTextStyle),
           actions: [
             IconButton(
                 onPressed: () {
@@ -210,7 +222,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     ? null
                     : () {
                   Analytics.sendAnalyticsEvent('finish_workout_button');
-
                   showDialog(
                             context: context,
                             builder: (BuildContext context) => AlertDialog(title: Text('운동을 종료할까요?'), actions: [
@@ -258,7 +269,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         SizedBox(height: 20),
         startStopButton(),
         SizedBox(height: 20),
-        SuggestionWidget(setNumber: nowSetNumber, workoutID: nowWorkoutID),
+        SuggestionWidget(message: message, notifyRefreshButtonPressed: shuffleSuggestionMessage),
         SizedBox(height: 20),
       ],
     );
@@ -295,8 +306,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       }
                       var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
                       setNowSetNumber(temp + 1);
-                      setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
+                      await setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
+                      setTodayVolumn(todayTargetWorkouts[workoutIndex]['workout']);
+                      setLatestVolumn(todayTargetWorkouts[workoutIndex]['workout']);
                       setNowWorkoutID(todayTargetWorkouts[workoutIndex]['workout']);
+                      setSuggestion();
                       // setProgressiveUI(todayTargetWorkouts[workoutIndex]['workout']);
                     },
                     icon: Icon(Icons.arrow_back_ios_new_outlined))
@@ -310,11 +324,15 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         setWorkoutIndexIncrease();
                         setNowWorkoutName(todayTargetWorkouts[workoutIndex]['name']);
                         setNowWorkoutID(todayTargetWorkouts[workoutIndex]['workout']);
-
                       }
                       var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
                       setNowSetNumber(temp + 1);
-                      setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
+                      await setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
+                      setTodayVolumn(todayTargetWorkouts[workoutIndex]['workout']);
+                      setLatestVolumn(todayTargetWorkouts[workoutIndex]['workout']);
+                      setNowWorkoutID(todayTargetWorkouts[workoutIndex]['workout']);
+                      setSuggestion();
+
                       // setProgressiveUI(todayTargetWorkouts[workoutIndex]['workout']);
                     },
                     icon: Icon(Icons.arrow_forward_ios_outlined))
@@ -383,6 +401,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   setOrder: this.nowSetNumber - 1,
                   createdAt: DateTime.now().toIso8601String(),
                   updatedAt: DateTime.now().toIso8601String()));
+
               await DBHelper.instance.insertEvaluations(Evaluations(
                   set: setID,
                   type: _evaluationType.name,
@@ -402,7 +421,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               startTimer(TIMER_TYPE.UP);
 
               setTodayCompletedWorkouts();
-              setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
+              await setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
+              setTodayVolumn(todayTargetWorkouts[workoutIndex]['workout']);
+              setLatestVolumn(todayTargetWorkouts[workoutIndex]['workout']);
+              setSuggestion();
               _scrollDown();
               _changeScale();
             },
@@ -684,36 +706,77 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     setState(() => _scale = _scale == 100 ? 120 : 100);
   }
 
-  void setLatestWeightReps(int workoutID) async {
-    var latestWeightReps = await DBHelper.instance.getLatestWeightsRepsToday(workoutID);
-    if (latestWeightReps.isNotEmpty) {
-      setNowWorkoutWeight(latestWeightReps.last['weight']);
-      setNowWorkoutReps(latestWeightReps.last['reps']);
-    } else {
-      setNowWorkoutWeight(0);
-      setNowWorkoutReps(0);
+
+
+  Future<void> setTargetWeightReps(int workoutID, setInNumber) async {
+    if (todayTargetWorkouts.length > 0) {
+      var setHistory = await DBHelper.instance.getLatestSetHistory(workoutID);
+
+      //과거에 히스토리가 없으면 오늘 데이터로 셋팅
+      if(setHistory.isEmpty) {
+        setLatestWeightReps(workoutID);
+      }
+      //과거에 히스토리가 있을 때 과거 데이터로 셋팅
+      else if(setHistory.isNotEmpty) {
+        // 오늘 운동한 세트수가 가장 최근 세트수보다 많으면 오늘 데이터로 셋팅
+        if (setHistory.length < setInNumber) {
+          setLatestWeightReps(workoutID);
+        } else {
+          setHistory.forEach((element) {
+            if(setInNumber == element['set_order']) {
+              setNowWorkoutWeight(element['weight']);
+              setNowWorkoutReps(element['result_num_time']);
+            }
+          });
+        }
+      }
     }
   }
 
-  void setTargetWeightReps(int workoutID, setInNumber) async {
-    if (todayTargetWorkouts.length > 0) {
-      var result = await DBHelper.instance.getWholeSetsInfo(todayTargetWorkouts);
-      var resultInWorkoutGroup = groupBy(result, (Map obj) => obj['workout_id']);
-      resultInWorkoutGroup.keys.forEachIndexed((index, element) {
-        if (element == workoutID.toString()) {
-          //이전 수행했던 세트정보가 있으면 해당 세트 정보로 업데이트
-          if (resultInWorkoutGroup.entries.toList()[index].value.length >= setInNumber) {
-            setNowWorkoutWeight(resultInWorkoutGroup.entries.toList()[index].value.toList()[setInNumber - 1]['weight']);
-            setNowWorkoutReps(resultInWorkoutGroup.entries.toList()[index].value.toList()[setInNumber - 1]['reps']);
-          }
-          //이전 수행했던 세트정보가 없으면 가장 오늘 중 최신의 세트 정보로 업데이트
-          else {
-            setLatestWeightReps(workoutID);
-          }
-        }
-      });
+  void setLatestVolumn(int workoutID) async {
+    num volumn = 0;
+    var setHistory = await DBHelper.instance.getLatestSetHistory(workoutID);
+
+    setHistory.forEach((element) {
+      volumn += element['weight'] * element['result_num_time'];
+    });
+
+    setState(() {
+      latestVolumn = volumn;
+    });
+
+    // print('이전 볼륨: $latestVolumn');
+
+  }
+
+  void setTodayVolumn(int workoutID) async {
+    num volumn = 0;
+    var todayWeightReps = await DBHelper.instance.getWeightsRepsToday(workoutID);
+
+    todayWeightReps.forEach((element) {
+      volumn += element['weight'] * element['reps'];
+    });
+
+    setState(() {
+      todayVolumn = volumn;
+    });
+
+    // print('today volumn is $todayVolumn');
+  }
+
+  void setLatestWeightReps(int workoutID) async {
+    var todayWeightReps = await DBHelper.instance.getWeightsRepsToday(workoutID);
+
+    if (todayWeightReps.isNotEmpty) {
+      var latestWeightReps = todayWeightReps.last;
+
+      print('오늘 이전에 운동한 기록은 없고 오늘 운동 기록은 있음');
+      setNowWorkoutWeight(latestWeightReps['weight']);
+      setNowWorkoutReps(latestWeightReps['reps']);
     } else {
-      setLatestWeightReps(workoutID);
+      print('오늘 이전에 운동한 기록도 없고 오늘도 처음 운동임');
+      setNowWorkoutWeight(0);
+      setNowWorkoutReps(1);
     }
   }
 
@@ -778,8 +841,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       Future.delayed(const Duration(milliseconds: 500), () async {
         var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
         setNowSetNumber(temp + 1);
-        setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
+        await setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
+        setTodayVolumn(todayTargetWorkouts[workoutIndex]['workout']);
+        setLatestVolumn(todayTargetWorkouts[workoutIndex]['workout']);
         setNowWorkoutID(todayTargetWorkouts[workoutIndex]['workout']);
+        setSuggestion();
       });
     }
   }
@@ -956,6 +1022,101 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     } else {
       return false;
     }
+  }
+
+  void setSuggestion() async {
+    setState(() {
+      suggestion_index = SUGGESTION_INDEX.LATEST_SET_INFO;
+    });
+
+    var data = await DBHelper.instance.getLatestSetHistory(nowWorkoutID);
+
+    if(data.isEmpty) {
+      setState(() {
+        history = [];
+      });
+    } else if(data.isNotEmpty) {
+      setState(() {
+        history = data;
+        lastSetNumber = data.last['set_order'];
+      });
+    }
+    setSuggestionData();
+  }
+
+  void setSuggestionData() {
+    if (history.isEmpty) {
+      setSuggestionMessage('다음 운동부터 중량, 횟수가 자동설정 돼요');
+    } else if (history.length >= nowSetNumber) {
+      switchSuggestionMessage();
+    } else if (history.length < nowSetNumber) {
+      setState(() {
+        suggestion_index = SUGGESTION_INDEX.OVER_SET_INFO;
+      });
+      switchSuggestionMessage();
+      // setSuggestionMessage('이전 볼륨: $latestVolumn');
+    }
+  }
+
+void setSuggestionMessage(String string) {
+    setState(() {
+      message = string;
+    });
+}
+  void shuffleSuggestionMessage() {
+    int index = SUGGESTION_INDEX.values.indexOf(suggestion_index);
+    if( index < SUGGESTION_INDEX.values.length ) {
+      setState(() {
+        index += 1;
+        if( index >= SUGGESTION_INDEX.values.length) {
+          index = 0;
+        }
+        suggestion_index = SUGGESTION_INDEX.values[index];
+      });
+    }
+    setSuggestionData();
+  }
+  void switchSuggestionMessage() {
+    int set;
+    int weight;
+    int reps;
+    String type;
+    String note;
+
+      switch (suggestion_index) {
+        case SUGGESTION_INDEX.LATEST_SET_INFO:
+          set = history[nowSetNumber - 1]['set_order'];
+          weight = history[nowSetNumber - 1]['weight'];
+          reps = history[nowSetNumber - 1]['result_num_time'];
+          type = history[nowSetNumber - 1]['type'];
+          setSuggestionMessage('지난번 $set 세트 $weight kg, $reps회는 $type했어요');
+          break;
+        case SUGGESTION_INDEX.NOTE_INFO:
+          note = history[nowSetNumber - 1]['note'];
+          setSuggestionMessage('노트: $note');
+          break;
+        case SUGGESTION_INDEX.NEXT_SET_INFO:
+          if(nowSetNumber == lastSetNumber) {
+            setSuggestionMessage('다음 세트 정보가 없습니다');
+          } else {
+            weight = history[nowSetNumber]['weight'];
+            reps = history[nowSetNumber]['result_num_time'];
+            type = history[nowSetNumber]['type'];
+            setSuggestionMessage('다음 세트 $weight kg, $reps회에서는 $type했어요');
+          }
+          break;
+        case SUGGESTION_INDEX.OVER_SET_INFO:
+          num difference = (todayVolumn - latestVolumn).abs();
+
+          if (todayVolumn == latestVolumn) {
+            setSuggestionMessage('지난 번과 볼륨이 같아요');
+          } else if (todayVolumn < latestVolumn) {
+            setSuggestionMessage('지난 번 보다 볼륨이 ${difference}kg 줄었어요');
+          } else if (todayVolumn > latestVolumn) {
+            setSuggestionMessage('지난 번 보다 볼륨이 ${difference}kg 늘었어요');
+          }
+
+      }
   }
 
   void _scrollDown() {

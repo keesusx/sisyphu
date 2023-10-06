@@ -23,7 +23,7 @@ class DBHelper {
     Directory documentsDirectory = await getApplicationDocumentsDirectory();
     String path = join(documentsDirectory.path, 'database.db');
     return await openDatabase(path,
-        version: 23,
+        version: 29,
         onCreate: _onCreate,
         // onConfigure: _onConfigure
         onUpgrade: _onUpgrade);
@@ -39,7 +39,6 @@ class DBHelper {
       await _onCreate(db, newVersion);
     }
   }
-
 
   Future _onCreate(Database db, int version) async {
     await db.execute('''
@@ -110,7 +109,6 @@ class DBHelper {
     await db.insert('evaluations', Evaluations(id: 4, set: 4, elapsedTime: '00', resultNumTime: 1, type: 'SUCCESS', note: '너무 무겁다..', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
     await db.insert('evaluations', Evaluations(id: 5, set: 5, elapsedTime: '00', resultNumTime: 2, type: 'SUCCESS', note: '조금 쉬운데?', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
     await db.insert('evaluations', Evaluations(id: 6, set: 6, elapsedTime: '00', resultNumTime: 3, type: 'SUCCESS', note: 'test', createdAt: '2023-09-02', updatedAt: '2023-09-02').toMap());
-
 
 
     await db.insert('sets', Sets(id: 7, setOrder: 1, workout: 2, targetNumTime: 1, weight: 10, createdAt: '2023-09-01', updatedAt: '2023-09-01').toMap());
@@ -222,7 +220,7 @@ class DBHelper {
     return result;
   }
 
-  Future<List<Map<String, dynamic>>> getLatestWeightsRepsToday(int workout) async {
+  Future<List<Map<String, dynamic>>> getWeightsRepsToday(int workout) async {
     DateFormat formatter = DateFormat('yyyy-MM-dd');
     String today = formatter.format(DateTime.now());
     Database db = await instance.database;
@@ -262,8 +260,8 @@ class DBHelper {
 
     for (int i = 0; i < workoutIdList.length; i++) {
       var temp = await db.rawQuery(
-          'SELECT workouts.body_part AS workout_id, workouts.name AS workout_name, evaluations.result_num_time AS reps, sets.weight, sets.created_at AS workout_date FROM sets, evaluations, workouts WHERE workouts.body_part = sets.workout AND evaluations.set_id = sets.id AND sets.workout = ? AND SUBSTR(sets.created_at, 0, 10) = ? ORDER BY sets.id ASC',
-          [workoutIdList[i]['workout'], workoutIdList[i]['workout_date']]);
+          'SELECT workouts.id AS workout_id, workouts.name AS workout_name, sets.set_order, evaluations.result_num_time AS reps, sets.weight, sets.created_at AS workout_date FROM sets, evaluations, workouts WHERE workouts.id = sets.workout AND evaluations.set_id = sets.id AND sets.workout = ? ORDER BY sets.id ASC',
+          [workoutIdList[i]['workout']]);
       result.addAll(temp);
     }
 
@@ -277,15 +275,11 @@ class DBHelper {
 
     var result;
 
-    print('[getLatestSetHistory() workoutID]' + workoutID.toString());
-
     var recentDates = await db.rawQuery('SELECT SUBSTR(created_at, 0 ,10) AS done_date FROM sets WHERE workout = ? AND NOT SUBSTR(created_at, 0 ,10) IN (?) GROUP BY SUBSTR(created_at, 0 ,10) ORDER BY id DESC', [workoutID, today]);
-    print('[getLatestSetHistory()]' + recentDates.toString());
     if(recentDates.length > 0) {
        result = await db.rawQuery(
           'SELECT sets.set_order, sets.weight, evaluations.result_num_time, evaluations.type, evaluations.note, SUBSTR(sets.created_at, 0 ,10) AS created_at FROM sets INNER JOIN evaluations ON evaluations.set_id = sets.id WHERE sets.workout = ? AND SUBSTR(sets.created_at, 0, 10) = ? ORDER BY sets.created_at ASC',
           [workoutID, recentDates[0]['done_date']]);
-       // print(result);
        return result;
     }
     return [];
