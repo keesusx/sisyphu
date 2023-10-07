@@ -137,6 +137,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       case AppLifecycleState.detached:
         print("app in detached");
         break;
+      case AppLifecycleState.hidden:
+        // TODO: Handle this case.
     }
   }
 
