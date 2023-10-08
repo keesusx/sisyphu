@@ -90,7 +90,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     message = '';
     suggestion_index = SUGGESTION_INDEX.LATEST_SET_INFO;
 
-
     setAppStatus(APP_STATUS.IN_BREAK);
     ensureEmptyWorkout();
   }
@@ -1047,16 +1046,17 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   void setSuggestionData() {
+
     if (history.isEmpty) {
       setSuggestionMessage('다음 운동부터 중량, 횟수가 자동설정 돼요');
     } else if (history.length >= nowSetNumber) {
       switchSuggestionMessage();
     } else if (history.length < nowSetNumber) {
+
       setState(() {
         suggestion_index = SUGGESTION_INDEX.OVER_SET_INFO;
       });
       switchSuggestionMessage();
-      // setSuggestionMessage('이전 볼륨: $latestVolumn');
     }
   }
 
@@ -1071,6 +1071,9 @@ void setSuggestionMessage(String string) {
       setState(() {
         index += 1;
         if( index >= SUGGESTION_INDEX.values.length) {
+          index = 0;
+        }
+        if(index == SUGGESTION_INDEX.values.indexOf(SUGGESTION_INDEX.OVER_SET_INFO)) {
           index = 0;
         }
         suggestion_index = SUGGESTION_INDEX.values[index];
@@ -1109,7 +1112,6 @@ void setSuggestionMessage(String string) {
           break;
         case SUGGESTION_INDEX.OVER_SET_INFO:
           num difference = (todayVolumn - latestVolumn).abs();
-
           if (todayVolumn == latestVolumn) {
             setSuggestionMessage('지난 번과 볼륨이 같아요');
           } else if (todayVolumn < latestVolumn) {
