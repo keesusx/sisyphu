@@ -65,7 +65,11 @@ class _SuggestionWidgetState extends State<SuggestionWidget> {
   }
 
   Widget messageWidget() {
-    return Text(widget.message);
+    return Expanded(
+      child: Padding(
+        padding: const EdgeInsets.all(20.0),
+        child: Text(widget.message),
+      ));
   }
 
 

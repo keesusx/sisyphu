@@ -12,6 +12,11 @@ enum EVALUATION_TYPE {
   final String number;
   final String label;
 
+  factory EVALUATION_TYPE.getByLabel(String label) {
+    print(label);
+    return EVALUATION_TYPE.values.firstWhere((value) => value.label == label);
+  }
+
 }
 
 enum SUGGESTION_INDEX { LATEST_SET_INFO, NOTE_INFO, NEXT_SET_INFO, OVER_SET_INFO }

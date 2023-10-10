@@ -403,9 +403,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   createdAt: DateTime.now().toIso8601String(),
                   updatedAt: DateTime.now().toIso8601String()));
 
+
               await DBHelper.instance.insertEvaluations(Evaluations(
                   set: setID,
-                  type: _evaluationType.name,
+                  type: _evaluationType.label,
                   note: '',
                   resultNumTime: this.targetReps,
                   elapsedTime: '$minutes:$seconds',
@@ -501,7 +502,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                   var newReps = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'];
                                   var newNote = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['note'];
 
-                                  tempEvaluationType = EVALUATION_TYPE.values.byName(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type']);
+                                  tempEvaluationType = EVALUATION_TYPE.getByLabel(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type']);
 
                                   showDialog(
                                       context: context,
@@ -587,7 +588,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                       ),
                                                       Text('개선할 점'),
                                                       TextField(
-
                                                         minLines: 1,
                                                         maxLines: 3,
                                                         keyboardType: TextInputType.multiline,
@@ -615,7 +615,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                       if (textInputControllerNote.text.length > 0) {
                                                         DBHelper.updateNote(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], textInputControllerNote.text);
                                                       }
-                                                      DBHelper.updateEvaluationType(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], tempEvaluationType.name);
+                                                      DBHelper.updateEvaluationType(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], tempEvaluationType.label);
                                                       setTodayCompletedWorkouts();
                                                       Navigator.of(context).pop();
                                                     },
