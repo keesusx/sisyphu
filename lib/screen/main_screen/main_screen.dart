@@ -587,6 +587,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                       ),
                                                       Text('개선할 점'),
                                                       TextField(
+
+                                                        minLines: 1,
+                                                        maxLines: 3,
                                                         keyboardType: TextInputType.multiline,
                                                         controller: textInputControllerNote,
                                                         decoration: InputDecoration(hintText: '${newNote}'),
