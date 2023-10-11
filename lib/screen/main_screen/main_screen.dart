@@ -101,8 +101,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
+
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
+    super.didChangeAppLifecycleState(state);
+
     var prefs = await SharedPreferences.getInstance();
     switch (state) {
       case AppLifecycleState.resumed:
@@ -111,13 +114,14 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         } else {
           DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
           Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
-          print(timeElapsed);
+          
+          print('myDuration' + myDuration.toString());
+          print('timeElapsed' + timeElapsed.toString());
 
-          if (workoutMode == APP_STATUS.IN_WORKOUT) {
-            // myDuration = myDuration + timeElapsed;
-          }
-
-          setState(() {
+          setState(() {         
+            if (workoutMode == APP_STATUS.IN_WORKOUT) {
+              myDuration = myDuration + timeElapsed;
+            }
             wasPause = false;
           });
         }
@@ -138,6 +142,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         break;
       case AppLifecycleState.hidden:
         // TODO: Handle this case.
+        break;
     }
   }
 
