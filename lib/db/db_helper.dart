@@ -129,7 +129,6 @@ class DBHelper {
   } catch (e) {
       throw Exception(e);
   } 
-
   }
 
   Future<int> insertSets(Sets set) async {

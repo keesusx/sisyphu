@@ -115,9 +115,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
           Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
           
-          print('myDuration' + myDuration.toString());
-          print('timeElapsed' + timeElapsed.toString());
-
+          print(workoutMode);
           setState(() {         
             if (workoutMode == APP_STATUS.IN_WORKOUT) {
               myDuration = myDuration + timeElapsed;

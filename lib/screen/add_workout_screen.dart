@@ -83,89 +83,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
     });
   }
 
-  void setBodyparts() async {
-    var db = await DBHelper.instance.getBodyParts();
-    setState(() {
-      bodypartsFromDB = db;
-      dropdownBodyPartValue = bodypartsFromDB.first.name!;
-      dropdownBodyPartIDValue = bodypartsFromDB.first.id!;
-    });
-  }
-
-  void setWorkoutList() async {
-    workoutsInGroup = {};
-    workouts = await DBHelper.instance.getWorkoutWithBodyPart();
-    setState(() {
-      workoutsInGroup =
-          groupBy(workouts, (Map obj) => obj['bodypart_name']).cast<String, List>();
-    });
-  }
-
-  void setBodypartsIDFromName(String value) {
-    switch (value) {
-      case '가슴':
-        setState(() {
-          dropdownBodyPartIDValue = 1;
-        });
-        break;
-      case '어깨':
-        setState(() {
-          dropdownBodyPartIDValue = 2;
-        });
-        break;
-      case '팔':
-        setState(() {
-          dropdownBodyPartIDValue = 3;
-        });
-        break;
-      case '복근':
-        setState(() {
-          dropdownBodyPartIDValue = 4;
-        });
-        break;
-      case '등':
-        setState(() {
-          dropdownBodyPartIDValue = 5;
-        });
-        break;
-      case '하체':
-        setState(() {
-          dropdownBodyPartIDValue = 6;
-        });
-        break;
-    }
-  }
-
-  void switchRecommendEntries(String value) {
-    selectedEntries = [];
-    switch (value) {
-      case '가슴':
-        setState(() {
-          selectedEntries = chestEntries;
-        });
-        break;
-      case '등':
-        setState(() {
-          selectedEntries = backEntries;
-        });
-        break;
-      case '어깨':
-        setState(() {
-          selectedEntries = sholuderEntries;
-        });
-        break;
-      case '팔':
-        setState(() {
-          selectedEntries = armEntries;
-        });
-        break;
-      case '하체':
-        setState(() {
-          selectedEntries = legEntries;
-        });
-        break;
-    }
-  }
+  
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +195,10 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
   }
 
   Widget workoutList() {
-    return ListView.builder(
+    return ListView.separated(
+        separatorBuilder: (context, index) {
+          return Divider();
+        },
         shrinkWrap: true,
         itemCount: workoutsInGroup.length,
         itemBuilder: (BuildContext context, int index) {
@@ -303,10 +224,96 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                               .toString()),
                         ],
                       ),
-                    ),
+                    )
                   );
-                })),
+                })
+                ),
           );
         });
   }
+
+  void setBodyparts() async {
+    var db = await DBHelper.instance.getBodyParts();
+    setState(() {
+      bodypartsFromDB = db;
+      dropdownBodyPartValue = bodypartsFromDB.first.name!;
+      dropdownBodyPartIDValue = bodypartsFromDB.first.id!;
+    });
+  }
+
+  void setWorkoutList() async {
+    workoutsInGroup = {};
+    workouts = await DBHelper.instance.getWorkoutWithBodyPart();
+    setState(() {
+      workoutsInGroup =
+          groupBy(workouts, (Map obj) => obj['bodypart_name']).cast<String, List>();
+    });
+  }
+
+  void setBodypartsIDFromName(String value) {
+    switch (value) {
+      case '가슴':
+        setState(() {
+          dropdownBodyPartIDValue = 1;
+        });
+        break;
+      case '어깨':
+        setState(() {
+          dropdownBodyPartIDValue = 2;
+        });
+        break;
+      case '팔':
+        setState(() {
+          dropdownBodyPartIDValue = 3;
+        });
+        break;
+      case '복근':
+        setState(() {
+          dropdownBodyPartIDValue = 4;
+        });
+        break;
+      case '등':
+        setState(() {
+          dropdownBodyPartIDValue = 5;
+        });
+        break;
+      case '하체':
+        setState(() {
+          dropdownBodyPartIDValue = 6;
+        });
+        break;
+    }
+  }
+
+  void switchRecommendEntries(String value) {
+    selectedEntries = [];
+    switch (value) {
+      case '가슴':
+        setState(() {
+          selectedEntries = chestEntries;
+        });
+        break;
+      case '등':
+        setState(() {
+          selectedEntries = backEntries;
+        });
+        break;
+      case '어깨':
+        setState(() {
+          selectedEntries = sholuderEntries;
+        });
+        break;
+      case '팔':
+        setState(() {
+          selectedEntries = armEntries;
+        });
+        break;
+      case '하체':
+        setState(() {
+          selectedEntries = legEntries;
+        });
+        break;
+    }
+  }
+
 }
