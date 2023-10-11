@@ -115,7 +115,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
           Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
           
-          print(workoutMode);
           setState(() {         
             if (workoutMode == APP_STATUS.IN_WORKOUT) {
               myDuration = myDuration + timeElapsed;
@@ -253,7 +252,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 ? FloatingActionButton(
                     child: Icon(Icons.play_arrow),
                     onPressed: () async {
-                      setAppStatus(APP_STATUS.IN_BREAK);
+                      setAppStatus(APP_STATUS.IN_WORKOUT);
                       setTargetWorkout();
                       var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
                       setNowSetNumber(temp + 1);
