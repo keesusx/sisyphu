@@ -123,7 +123,13 @@ class DBHelper {
 
   Future<int> insertWorkouts(Workouts workout) async {
     Database db = await instance.database;
-    return await db.insert('workouts', workout.toMap());
+    try {
+      var result = await db.insert('workouts', workout.toMap(), conflictAlgorithm: ConflictAlgorithm.ignore);
+      return result;
+  } catch (e) {
+      throw Exception(e);
+  } 
+
   }
 
   Future<int> insertSets(Sets set) async {
