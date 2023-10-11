@@ -64,6 +64,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   late String message;
   late SUGGESTION_INDEX suggestion_index;
 
+  late final AppLifecycleListener _appLifecycleListener;
   @override
   void initState() {
     WidgetsBinding.instance.addObserver(this);
@@ -90,6 +91,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     message = '';
     suggestion_index = SUGGESTION_INDEX.LATEST_SET_INFO;
 
+  
+    _appLifecycleListener = AppLifecycleListener(onStateChange: _onStateChanged,);
+
     setAppStatus(APP_STATUS.IN_BREAK);
     ensureEmptyWorkout();
   }
@@ -101,47 +105,81 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
+void _onStateChanged(AppLifecycleState state) async {
+  var prefs = await SharedPreferences.getInstance();
 
-  @override
-  void didChangeAppLifecycleState(AppLifecycleState state) async {
-    super.didChangeAppLifecycleState(state);
-
-    var prefs = await SharedPreferences.getInstance();
-    switch (state) {
-      case AppLifecycleState.resumed:
-        print("app in active");
-        if (wasPause == false) {
-        } else {
-          DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
-          Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
-          
-          setState(() {         
-            if (workoutMode == APP_STATUS.IN_WORKOUT) {
-              myDuration = myDuration + timeElapsed;
-            }
-            wasPause = false;
-          });
-        }
-        break;
-      case AppLifecycleState.inactive:
-        print("app in inactive");
-        break;
-      case AppLifecycleState.paused:
-        print("app in paused");
-        print('stop at $myDuration');
-        prefs.setString('timerStartTime', DateTime.now().toString());
-        setState(() {
-          wasPause = true;
+  switch(state) {
+    case AppLifecycleState.detached:
+    break;
+    case AppLifecycleState.resumed:
+      print("app in active");
+      if (wasPause == false) {
+      } else {
+        DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
+        Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
+      
+        setState(() {         
+          if (workoutMode == APP_STATUS.IN_WORKOUT) {
+            myDuration = myDuration + timeElapsed;
+          }
+          wasPause = false;
         });
-        break;
-      case AppLifecycleState.detached:
-        print("app in detached");
-        break;
-      case AppLifecycleState.hidden:
-        // TODO: Handle this case.
-        break;
-    }
+      }
+    break;
+    case AppLifecycleState.inactive:
+    break;
+    case AppLifecycleState.hidden:
+    break;
+    case AppLifecycleState.paused:
+      print("app in paused");
+      prefs.setString('timerStartTime', DateTime.now().toString());
+      setState(() {
+        wasPause = true;
+      });
+    break;
+
   }
+}
+
+  // @override
+  // void didChangeAppLifecycleState(AppLifecycleState state) async {
+  //   super.didChangeAppLifecycleState(state);
+
+  //   var prefs = await SharedPreferences.getInstance();
+  //   switch (state) {
+  //     case AppLifecycleState.resumed:
+  //       print("app in active");
+  //       if (wasPause == false) {
+  //       } else {
+  //         DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
+  //         Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
+          
+  //         setState(() {         
+  //           if (workoutMode == APP_STATUS.IN_WORKOUT) {
+  //             myDuration = myDuration + timeElapsed;
+  //           }
+  //           wasPause = false;
+  //         });
+  //       }
+  //       break;
+  //     case AppLifecycleState.inactive:
+  //       print("app in inactive");
+  //       break;
+  //     case AppLifecycleState.paused:
+  //       print("app in paused");
+  //       prefs.setString('timerStartTime', DateTime.now().toString());
+  //       setState(() {
+  //         wasPause = true;
+  //       });
+  //       break;
+  //     case AppLifecycleState.detached:
+  //       print("app in detached");
+  //       break;
+  //     case AppLifecycleState.hidden:
+  //       // TODO: Handle this case.
+  //       break;
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -252,7 +290,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 ? FloatingActionButton(
                     child: Icon(Icons.play_arrow),
                     onPressed: () async {
-                      setAppStatus(APP_STATUS.IN_WORKOUT);
+                      setAppStatus(APP_STATUS.IN_BREAK);
                       setTargetWorkout();
                       var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
                       setNowSetNumber(temp + 1);
