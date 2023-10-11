@@ -119,7 +119,7 @@ void _onStateChanged(AppLifecycleState state) async {
         Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
       
         setState(() {         
-          if (workoutMode == APP_STATUS.IN_WORKOUT) {
+          if (workoutMode == APP_STATUS.IN_WORKOUT || workoutMode == APP_STATUS.IN_BREAK) {
             myDuration = myDuration + timeElapsed;
           }
           wasPause = false;
