@@ -11,7 +11,6 @@ import '../../db/evaluations.dart';
 import '../../db/sets.dart';
 import '../../db/db_helper.dart';
 import 'package:collection/collection.dart';
-import 'package:flutter/foundation.dart';
 import '../../utils/enums.dart';
 import 'package:badges/badges.dart' as badges;
 
@@ -106,45 +105,45 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     super.dispose();
   }
 
-void _onStateChanged(AppLifecycleState state) async {
-  var prefs = await SharedPreferences.getInstance();
+  void _onStateChanged(AppLifecycleState state) async {
+    var prefs = await SharedPreferences.getInstance();
 
-  switch(state) {
-    case AppLifecycleState.detached:
-    break;
-    case AppLifecycleState.resumed:
-      print("app in active");
-      if (wasPause == false) {
-      } else {
-        DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
-        Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
+    switch(state) {
+      case AppLifecycleState.detached:
+      break;
+      case AppLifecycleState.resumed:
+        print("app in active");
+        if (wasPause == false) {
+        } else {
+          DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
+          Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
 
-        if (timeElapsed.inMinutes >= timeLimitInMinute) {
-          setAppFinish();
-        }
-      
-        setState(() {         
-          if (workoutMode == APP_STATUS.IN_WORKOUT || workoutMode == APP_STATUS.IN_BREAK) {
-            myDuration = myDuration + timeElapsed;
+          if (timeElapsed.inMinutes >= timeLimitInMinute) {
+            setAppFinish();
           }
-          wasPause = false;
+        
+          setState(() {         
+            if (workoutMode == APP_STATUS.IN_WORKOUT || workoutMode == APP_STATUS.IN_BREAK) {
+              myDuration = myDuration + timeElapsed;
+            }
+            wasPause = false;
+          });
+        }
+      break;
+      case AppLifecycleState.inactive:
+      break;
+      case AppLifecycleState.hidden:
+      break;
+      case AppLifecycleState.paused:
+        print("app in paused");
+        prefs.setString('timerStartTime', DateTime.now().toString());
+        setState(() {
+          wasPause = true;
         });
-      }
-    break;
-    case AppLifecycleState.inactive:
-    break;
-    case AppLifecycleState.hidden:
-    break;
-    case AppLifecycleState.paused:
-      print("app in paused");
-      prefs.setString('timerStartTime', DateTime.now().toString());
-      setState(() {
-        wasPause = true;
-      });
-    break;
+      break;
 
+    }
   }
-}
 
 
   @override

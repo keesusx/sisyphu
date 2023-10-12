@@ -14,19 +14,15 @@ class SuggestionWidget extends StatefulWidget {
   State<SuggestionWidget> createState() => _SuggestionWidgetState();
 }
 
-
-// enum SUGGESTION_INDEX {LATEST_SET_INFO, NOTE_INFO, NEXT_SET_INFO}
-
 class _SuggestionWidgetState extends State<SuggestionWidget> {
 
   bool isFirstSet = true;
-  // late SUGGESTION_INDEX suggestion_index;
+
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    // suggestion_index = SUGGESTION_INDEX.LATEST_SET_INFO;
 
   }
 
