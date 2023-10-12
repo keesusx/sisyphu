@@ -1082,7 +1082,10 @@ void setSuggestionMessage(String string) {
     if( index < SUGGESTION_INDEX.values.length ) {
       setState(() {
         index += 1;
-        if( index >= SUGGESTION_INDEX.values.length) {
+        if(history[nowSetNumber - 1]['note'].isEmpty) {
+          index++;
+        }
+        if(index >= SUGGESTION_INDEX.values.length) {
           index = 0;
         }
         if(index == SUGGESTION_INDEX.values.indexOf(SUGGESTION_INDEX.OVER_SET_INFO)) {
@@ -1110,7 +1113,7 @@ void setSuggestionMessage(String string) {
           break;
         case SUGGESTION_INDEX.NOTE_INFO:
           note = history[nowSetNumber - 1]['note'];
-          setSuggestionMessage('노트: $note');
+          setSuggestionMessage('$note');
           break;
         case SUGGESTION_INDEX.NEXT_SET_INFO:
           if(nowSetNumber == lastSetNumber) {
