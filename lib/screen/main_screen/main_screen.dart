@@ -34,6 +34,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   bool wasPause = false;
   bool isWorkoutEmpty = true;
   Suggestion suggestion = Suggestion(setNumber: 0);
+  
+  final int timeLimitInMinute = 30;
 
   late APP_STATUS workoutMode;
 
@@ -91,7 +93,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     message = '';
     suggestion_index = SUGGESTION_INDEX.LATEST_SET_INFO;
 
-  
     _appLifecycleListener = AppLifecycleListener(onStateChange: _onStateChanged,);
 
     setAppStatus(APP_STATUS.IN_BREAK);
@@ -117,6 +118,10 @@ void _onStateChanged(AppLifecycleState state) async {
       } else {
         DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
         Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
+
+        if (timeElapsed.inMinutes >= timeLimitInMinute) {
+          setAppFinish();
+        }
       
         setState(() {         
           if (workoutMode == APP_STATUS.IN_WORKOUT || workoutMode == APP_STATUS.IN_BREAK) {
@@ -141,45 +146,6 @@ void _onStateChanged(AppLifecycleState state) async {
   }
 }
 
-  // @override
-  // void didChangeAppLifecycleState(AppLifecycleState state) async {
-  //   super.didChangeAppLifecycleState(state);
-
-  //   var prefs = await SharedPreferences.getInstance();
-  //   switch (state) {
-  //     case AppLifecycleState.resumed:
-  //       print("app in active");
-  //       if (wasPause == false) {
-  //       } else {
-  //         DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
-  //         Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
-          
-  //         setState(() {         
-  //           if (workoutMode == APP_STATUS.IN_WORKOUT) {
-  //             myDuration = myDuration + timeElapsed;
-  //           }
-  //           wasPause = false;
-  //         });
-  //       }
-  //       break;
-  //     case AppLifecycleState.inactive:
-  //       print("app in inactive");
-  //       break;
-  //     case AppLifecycleState.paused:
-  //       print("app in paused");
-  //       prefs.setString('timerStartTime', DateTime.now().toString());
-  //       setState(() {
-  //         wasPause = true;
-  //       });
-  //       break;
-  //     case AppLifecycleState.detached:
-  //       print("app in detached");
-  //       break;
-  //     case AppLifecycleState.hidden:
-  //       // TODO: Handle this case.
-  //       break;
-  //   }
-  // }
 
   @override
   Widget build(BuildContext context) {
@@ -268,13 +234,7 @@ void _onStateChanged(AppLifecycleState state) async {
                             builder: (BuildContext context) => AlertDialog(title: Text('운동을 종료할까요?'), actions: [
                                   TextButton(
                                       onPressed: () {
-                                        setState(() {
-                                          if (countTimer != null) {
-                                            stopTimer();
-                                            resetTimer(0, 0);
-                                          }
-                                          setAppStatus(APP_STATUS.FINISH);
-                                        });
+                                        setAppFinish();
                                         Navigator.of(context).pop();
                                       },
                                       child: const Text('네')),
@@ -925,6 +885,16 @@ void _onStateChanged(AppLifecycleState state) async {
   Future<void> ensureEmptyWorkout() async {
     await prefixIsWorkoutEmpty();
     await initData();
+  }
+
+  void setAppFinish() {
+    setState(() {
+      if (countTimer != null) {
+        stopTimer();
+        resetTimer(0, 0);
+      }
+    });
+    setAppStatus(APP_STATUS.FINISH);
   }
 
   void setNowWorkoutName(String workoutName) {
