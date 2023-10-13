@@ -1109,7 +1109,7 @@ void setSuggestionMessage(String string) {
           weight = history[nowSetNumber - 1]['weight'];
           reps = history[nowSetNumber - 1]['result_num_time'];
           type = history[nowSetNumber - 1]['type'];
-          setSuggestionMessage('지난번 $set 세트 $weight kg, $reps회는 $type했어요');
+          setSuggestionMessage('지난 번 ${set}세트 ${weight}kg, $reps회는 $type했어요');
           break;
         case SUGGESTION_INDEX.NOTE_INFO:
           note = history[nowSetNumber - 1]['note'];
@@ -1122,7 +1122,7 @@ void setSuggestionMessage(String string) {
             weight = history[nowSetNumber]['weight'];
             reps = history[nowSetNumber]['result_num_time'];
             type = history[nowSetNumber]['type'];
-            setSuggestionMessage('다음 세트 $weight kg, $reps회에서는 $type했어요');
+            setSuggestionMessage('다음 세트 ${weight}kg, $reps회에서는 $type했어요');
           }
           break;
         case SUGGESTION_INDEX.OVER_SET_INFO:
