@@ -141,7 +141,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                                       body_part: dropdownBodyPartIDValue));
                               setState(() {
                                 textController.clear();
-                                dropdownBodyPartValue = bodypartsFromDB.first.name!;
+
                               });
                               setWorkoutList();
                             }
