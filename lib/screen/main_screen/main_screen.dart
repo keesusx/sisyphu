@@ -492,10 +492,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                             Icon(Icons.circle_rounded, color: Colors.pink, size: 2),
                             showBadge: isNewSet(i, DateTime.parse(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['created_at'])) ? true : false,
                             child: IconButton(
-                                onPressed: () {
+                                onPressed: () async {
                                   final textInputControllerWeight = TextEditingController();
                                   final textInputControllerReps = TextEditingController();
-                                  final textInputControllerNote = TextEditingController();
+                                  var textInputControllerNote = TextEditingController();
 
                                   var newWeight = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['weight'];
                                   var newReps = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'];
@@ -585,7 +585,24 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                           )
                                                         ],
                                                       ),
-                                                      Text('개선할 점'),
+                                                      Row(
+                                                        children: [
+                                                          Text('개선할 점'),
+                                                          TextButton(
+                                                            onPressed: () async {
+                                                              var latestNote = await DBHelper.instance.getNote(nowWorkoutID, todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i);
+
+                                                              if(latestNote.length > 1) {
+                                                                setState(() {
+                                                                  textInputControllerNote.text = latestNote[1]['note'].toString();
+                                                                });  
+                                                              }
+                                                            },
+                                                            child: Text('지난 메모 불러오기', style: TextStyle(fontSize: 12),
+                                                            )
+                                                          )
+                                                        ],
+                                                      ),
                                                       TextField(
                                                         minLines: 1,
                                                         maxLines: 3,
