@@ -1082,9 +1082,6 @@ void setSuggestionMessage(String string) {
     if( index < SUGGESTION_INDEX.values.length ) {
       setState(() {
         index += 1;
-        if(history[nowSetNumber - 1]['note'].isEmpty) {
-          index++;
-        }
         if(index >= SUGGESTION_INDEX.values.length) {
           index = 0;
         }
@@ -1112,7 +1109,11 @@ void setSuggestionMessage(String string) {
           setSuggestionMessage('지난 번 ${set}세트 ${weight}kg, $reps회는 $type했어요');
           break;
         case SUGGESTION_INDEX.NOTE_INFO:
-          note = history[nowSetNumber - 1]['note'];
+          if(history[nowSetNumber - 1]['note'].isEmpty) {
+            note = '조금 전 세트를 메모해보세요\n다음 운동시 리마인드 해드려요';
+          } else {
+            note = history[nowSetNumber - 1]['note'];
+          }
           setSuggestionMessage('$note');
           break;
         case SUGGESTION_INDEX.NEXT_SET_INFO:
