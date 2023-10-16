@@ -253,7 +253,7 @@ class DBHelper {
       return [];
     }
     List<Map<String, dynamic>> targetWorkoutIds = await db.rawQuery(
-        'SELECT sets.workout, workouts.name, SUBSTR(sets.created_at, 0, 10) as workout_date FROM sets, workouts WHERE sets.workout = workouts.body_part AND SUBSTR(sets.created_at, 0, 10) > ? AND SUBSTR(sets.created_at, 0, 10) < ? GROUP BY sets.workout ORDER BY sets.created_at ASC',
+        'SELECT sets.workout, workouts.name, SUBSTR(sets.created_at, 0, 10) as workout_date FROM sets INNER JOIN workouts ON workouts.id = sets.workout WHERE SUBSTR(sets.created_at, 0, 10) > ? AND SUBSTR(sets.created_at, 0, 10) < ? GROUP BY sets.workout ORDER BY sets.id ASC',
         [secondLatestWorkoutDate.first['created_at'].toString().substring(0, 10), today]);
 
     return targetWorkoutIds;
