@@ -300,8 +300,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
     final List<String> setHistoryDataDivisions = [
       '부위',
       '종목',
-      '세트',
       '무게',
+      '세트',
       '횟수',
     ];
 
@@ -336,13 +336,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
             style: _style),
       )));
 
-      dataCells.add(DataCell(Text(
-          resultInGroup.entries
-              .toList()[index]
-              .value
-              .toList()[j]['count']
-              .toString(),
-          style: _style)));
+     
 
       if (resultInGroup.entries.toList()[index].value.toList()[j]
               ['minimum_weight'] ==
@@ -370,6 +364,15 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                 'kg',
             style: _style)));
       }
+
+       dataCells.add(DataCell(Text(
+          resultInGroup.entries
+              .toList()[index]
+              .value
+              .toList()[j]['count']
+              .toString(),
+          style: _style)));
+          
 
       if (resultInGroup.entries.toList()[index].value.toList()[j]
               ['minimum_reps'] ==

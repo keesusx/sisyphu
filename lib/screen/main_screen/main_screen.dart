@@ -1141,7 +1141,7 @@ void setSuggestionMessage(String string) {
           break;
         case SUGGESTION_INDEX.NEXT_SET_INFO:
           if(nowSetNumber == lastSetNumber) {
-            setSuggestionMessage('다음 세트 정보가 없습니다');
+            setSuggestionMessage('마지막 세트, 조금만 더 힘내세요!');
           } else {
             weight = history[nowSetNumber]['weight'];
             reps = history[nowSetNumber]['result_num_time'];
