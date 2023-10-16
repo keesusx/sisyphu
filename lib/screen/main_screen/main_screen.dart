@@ -805,6 +805,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     List<Map<String, dynamic>> allWorkouts = await DBHelper.instance.getWorkouts();
     List<Map<String, dynamic>> targetWorkouts = List<Map<String, dynamic>>.from(recommendedWorkouts);
 
+
     List<int> targetWorkoutIDList = [];
     List<int> allWorkoutIDList = [];
     List<int> otherWorkouts = [];
@@ -1127,11 +1128,16 @@ void setSuggestionMessage(String string) {
           break;
         case SUGGESTION_INDEX.NOTE_INFO:
           if(history[nowSetNumber - 1]['note'].isEmpty) {
-            note = '조금 전 세트를 메모해보세요\n다음 운동시 리마인드 해드려요';
+            if(nowSetNumber == 1) {
+              note = '세트 종료 후 메모를 남겨보세요';
+            } else {
+              note = '조금 전 세트를 메모해보세요\n다음 운동시 리마인드 해드려요';
+            }
           } else {
             note = history[nowSetNumber - 1]['note'];
           }
-          setSuggestionMessage('$note');
+          
+          setSuggestionMessage(note);
           break;
         case SUGGESTION_INDEX.NEXT_SET_INFO:
           if(nowSetNumber == lastSetNumber) {
