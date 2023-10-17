@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:sisyphu/db/db_helper.dart';
 import '../../my_flutter_app_icons.dart';
+import 'package:sisyphu/utils/analytics.dart';
 
 class SuggestionWidget extends StatefulWidget {
   final String message;
@@ -38,7 +39,10 @@ class _SuggestionWidgetState extends State<SuggestionWidget> {
           child: Padding(padding: const EdgeInsets.all(6.0), child: Icon(CustomIcons.chart, color: Colors.pink, size: 16)),
         ),
         messageWidget(),
-        IconButton(icon: Icon(Icons.refresh, color: Colors.pink), onPressed: widget.notifyRefreshButtonPressed)
+        IconButton(icon: Icon(Icons.refresh, color: Colors.pink), onPressed: () {
+          Analytics.sendAnalyticsEvent('signal_refresh_icon');
+          widget.notifyRefreshButtonPressed
+        ;})
       ],
     );
   }
