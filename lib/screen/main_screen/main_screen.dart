@@ -36,6 +36,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   final int timeLimitInMinute = 30;
 
   late APP_STATUS workoutMode;
+  late bool isStarted;
 
   late int timerMinutes;
   late int timerSeconds;
@@ -69,6 +70,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   void initState() {
     WidgetsBinding.instance.addObserver(this);
     super.initState();
+    isStarted = false;
     nowWorkoutName = '';
     nowWorkoutID = 0;
     targetWeight = 0;
@@ -114,18 +116,23 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         break;
       case AppLifecycleState.resumed:
         print("app in active");
+
         if (wasPause == false) {
         } else {
           DateTime lastUnstoppedTimerValue = DateTime.parse(prefs.getString('timerStartTime')!);
           Duration timeElapsed = DateTime.now().difference(lastUnstoppedTimerValue);
 
           if (timeElapsed.inMinutes >= timeLimitInMinute) {
+            setIsStarted(false);
             setAppFinish();
           }
 
           setState(() {
             if (workoutMode == APP_STATUS.IN_WORKOUT || workoutMode == APP_STATUS.IN_BREAK) {
-              myDuration = myDuration + timeElapsed;
+              if (isStarted) {
+                print('counter added');
+                myDuration = myDuration + timeElapsed;
+              }
             }
             wasPause = false;
           });
@@ -180,7 +187,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     ? Stack(
                         alignment: AlignmentDirectional.center,
                         children: [
-                          Container(width: 30, height: 30, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.pink, width: 2))),
+                          Container(
+                              width: 30,
+                              height: 30,
+                              decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.pink, width: 2))),
                           Icon(Icons.add, color: Colors.pink)
                         ],
                       )
@@ -222,6 +232,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                             builder: (BuildContext context) => AlertDialog(title: Text('운동을 종료할까요?'), actions: [
                                   TextButton(
                                       onPressed: () {
+                                        setIsStarted(false);
                                         setAppFinish();
                                         Navigator.of(context).pop();
                                       },
@@ -345,7 +356,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 ? null
                 : () {
                     Analytics.sendAnalyticsEvent('start_counter_button');
-
+                    setIsStarted(true);
                     setAppStatus(APP_STATUS.IN_WORKOUT);
                     if (countTimer != null) {
                       setState(() {
@@ -441,7 +452,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           TweenAnimationBuilder(
               duration: Duration(milliseconds: 400),
               tween: Tween<double>(begin: _scale, end: _scale),
-              builder: (_, double size, __) => Text('$minutes:$seconds', style: TextStyle(fontWeight: FontWeight.w100, color: Colors.black, fontSize: size)))
+              builder: (_, double size, __) =>
+                  Text('$minutes:$seconds', style: TextStyle(fontWeight: FontWeight.w100, color: Colors.black, fontSize: size)))
         ],
       ),
     );
@@ -473,10 +485,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           badges.Badge(
                             position: badges.BadgePosition.topEnd(top: 2, end: 5),
                             badgeContent: Icon(Icons.circle_rounded, color: Colors.pink, size: 2),
-                            showBadge:
-                                isNewSet(i, DateTime.parse(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['created_at']))
-                                    ? true
-                                    : false,
+                            showBadge: isNewSet(
+                                    i, DateTime.parse(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['created_at']))
+                                ? true
+                                : false,
                             child: IconButton(
                                 onPressed: () async {
                                   final textInputControllerWeight = TextEditingController();
@@ -487,13 +499,14 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                   var newReps = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'];
                                   var newNote = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['note'];
 
-                                  tempEvaluationType =
-                                      EVALUATION_TYPE.getByLabel(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type']);
+                                  tempEvaluationType = EVALUATION_TYPE
+                                      .getByLabel(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type']);
 
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) => AlertDialog(
-                                              title: Text((todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i).toString() + '세트 평가'),
+                                              title:
+                                                  Text((todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i).toString() + '세트 평가'),
                                               content: StatefulBuilder(
                                                 builder: (BuildContext context, StateSetter setState) {
                                                   return Column(
@@ -586,8 +599,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                           Text('개선할 점'),
                                                           TextButton(
                                                               onPressed: () async {
-                                                                var latestNote = await DBHelper.instance.getNote(
-                                                                    nowWorkoutID, todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i);
+                                                                var latestNote = await DBHelper.instance.getNote(nowWorkoutID,
+                                                                    todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i);
 
                                                                 if (latestNote.length > 1) {
                                                                   setState(() {
@@ -627,11 +640,13 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                       }
                                                       if (textInputControllerNote.text.length > 0) {
                                                         DBHelper.updateNote(
-                                                            todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'],
+                                                            todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]
+                                                                ['evaluationsID'],
                                                             textInputControllerNote.text);
                                                       }
                                                       DBHelper.updateEvaluationType(
-                                                          todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'],
+                                                          todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]
+                                                              ['evaluationsID'],
                                                           tempEvaluationType.label);
                                                       setTodayCompletedWorkouts();
                                                       Navigator.of(context).pop();
@@ -651,9 +666,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                         actions: [
                                           TextButton(
                                               onPressed: () async {
-                                                DBHelper.deleteSet(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['id']);
+                                                DBHelper.deleteSet(
+                                                    todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['id']);
                                                 setTodayCompletedWorkouts();
-                                                var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
+                                                var temp =
+                                                    await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
                                                 setNowSetNumber(temp + 1);
                                                 setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
                                                 Navigator.of(context).pop();
@@ -938,6 +955,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   void setNowSetNumber(int number) {
     setState(() {
       nowSetNumber = number;
+    });
+  }
+
+  void setIsStarted(bool isStart) {
+    setState(() {
+      isStarted = isStart;
     });
   }
 
