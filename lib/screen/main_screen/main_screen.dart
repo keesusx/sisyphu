@@ -14,7 +14,6 @@ import 'package:collection/collection.dart';
 import '../../utils/enums.dart';
 import 'package:badges/badges.dart' as badges;
 
-
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
 
@@ -33,7 +32,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   bool wasPause = false;
   bool isWorkoutEmpty = true;
   Suggestion suggestion = Suggestion(setNumber: 0);
-  
+
   final int timeLimitInMinute = 30;
 
   late APP_STATUS workoutMode;
@@ -92,7 +91,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     message = '';
     suggestion_index = SUGGESTION_INDEX.LATEST_SET_INFO;
 
-    _appLifecycleListener = AppLifecycleListener(onStateChange: _onStateChanged,);
+    _appLifecycleListener = AppLifecycleListener(
+      onStateChange: _onStateChanged,
+    );
 
     setAppStatus(APP_STATUS.IN_BREAK);
     ensureEmptyWorkout();
@@ -108,9 +109,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   void _onStateChanged(AppLifecycleState state) async {
     var prefs = await SharedPreferences.getInstance();
 
-    switch(state) {
+    switch (state) {
       case AppLifecycleState.detached:
-      break;
+        break;
       case AppLifecycleState.resumed:
         print("app in active");
         if (wasPause == false) {
@@ -121,30 +122,28 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           if (timeElapsed.inMinutes >= timeLimitInMinute) {
             setAppFinish();
           }
-        
-          setState(() {         
+
+          setState(() {
             if (workoutMode == APP_STATUS.IN_WORKOUT || workoutMode == APP_STATUS.IN_BREAK) {
               myDuration = myDuration + timeElapsed;
             }
             wasPause = false;
           });
         }
-      break;
+        break;
       case AppLifecycleState.inactive:
-      break;
+        break;
       case AppLifecycleState.hidden:
-      break;
+        break;
       case AppLifecycleState.paused:
         print("app in paused");
         prefs.setString('timerStartTime', DateTime.now().toString());
         setState(() {
           wasPause = true;
         });
-      break;
-
+        break;
     }
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -157,8 +156,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           title: workoutMode == APP_STATUS.FINISH
               ? Container()
               : workoutMode == APP_STATUS.IN_BREAK
-                  ? isWorkoutEmpty ? emptyWorkoutMessage() : Text('휴식중',style: _onBreakTextStyle)
-                  : Text('운동중',style: _onWorkoutTextStyle),
+                  ? isWorkoutEmpty
+                      ? emptyWorkoutMessage()
+                      : Text('휴식중', style: _onBreakTextStyle)
+                  : Text('운동중', style: _onWorkoutTextStyle),
           actions: [
             IconButton(
                 onPressed: () {
@@ -169,33 +170,21 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                     setTargetWorkout();
 
                     if (todayTargetWorkouts.length > 0) {
-                      var temp = await DBHelper.instance.getCompletedSetsToday(
-                          todayTargetWorkouts[workoutIndex]['workout']);
+                      var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
                       setNowSetNumber(temp + 1);
-                      setTargetWeightReps(
-                          todayTargetWorkouts[workoutIndex]['workout'],
-                          nowSetNumber);
+                      setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
                     }
                   });
                 },
-                icon: isWorkoutEmpty ? Stack(
-                  alignment: AlignmentDirectional.center,
-                  children: [
-                    Container(
-                        width: 30,
-                        height: 30,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                            border: Border.all(
-                            color: Colors.pink,
-                            width: 2
-                          )
-                        )
-                    ),
-                    Icon(Icons.add, color: Colors.pink)
-                  ],
-                ) : Icon(Icons.add)
-            ),
+                icon: isWorkoutEmpty
+                    ? Stack(
+                        alignment: AlignmentDirectional.center,
+                        children: [
+                          Container(width: 30, height: 30, decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.pink, width: 2))),
+                          Icon(Icons.add, color: Colors.pink)
+                        ],
+                      )
+                    : Icon(Icons.add)),
             IconButton(
                 onPressed: () {
                   Analytics.sendAnalyticsEvent('history_icon');
@@ -227,8 +216,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                 onPressed: isWorkoutEmpty
                     ? null
                     : () {
-                  Analytics.sendAnalyticsEvent('finish_workout_button');
-                  showDialog(
+                        Analytics.sendAnalyticsEvent('finish_workout_button');
+                        showDialog(
                             context: context,
                             builder: (BuildContext context) => AlertDialog(title: Text('운동을 종료할까요?'), actions: [
                                   TextButton(
@@ -355,9 +344,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             onPressed: isWorkoutEmpty
                 ? null
                 : () {
-              Analytics.sendAnalyticsEvent('start_counter_button');
+                    Analytics.sendAnalyticsEvent('start_counter_button');
 
-              setAppStatus(APP_STATUS.IN_WORKOUT);
+                    setAppStatus(APP_STATUS.IN_WORKOUT);
                     if (countTimer != null) {
                       setState(() {
                         timerMinutes = 0;
@@ -402,7 +391,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   createdAt: DateTime.now().toIso8601String(),
                   updatedAt: DateTime.now().toIso8601String()));
 
-
               await DBHelper.instance.insertEvaluations(Evaluations(
                   set: setID,
                   type: _evaluationType.label,
@@ -442,8 +430,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
           );
   }
 
-
-
   Widget counter() {
     String strDigits(int n) => n.toString().padLeft(2, '0');
     final minutes = strDigits(myDuration.inMinutes.remainder(60));
@@ -462,7 +448,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   Widget todayCompletedSetsWidget() {
-
     EVALUATION_TYPE tempEvaluationType;
 
     return Column(
@@ -485,12 +470,13 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                           Text((todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i).toString() + '세트 '),
                           Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['weight'].toString() + 'kg'),
                           Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'].toString() + '회'),
-
                           badges.Badge(
                             position: badges.BadgePosition.topEnd(top: 2, end: 5),
-                            badgeContent:
-                            Icon(Icons.circle_rounded, color: Colors.pink, size: 2),
-                            showBadge: isNewSet(i, DateTime.parse(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['created_at'])) ? true : false,
+                            badgeContent: Icon(Icons.circle_rounded, color: Colors.pink, size: 2),
+                            showBadge:
+                                isNewSet(i, DateTime.parse(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['created_at']))
+                                    ? true
+                                    : false,
                             child: IconButton(
                                 onPressed: () async {
                                   final textInputControllerWeight = TextEditingController();
@@ -501,7 +487,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                   var newReps = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'];
                                   var newNote = todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['note'];
 
-                                  tempEvaluationType = EVALUATION_TYPE.getByLabel(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type']);
+                                  tempEvaluationType =
+                                      EVALUATION_TYPE.getByLabel(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['type']);
 
                                   showDialog(
                                       context: context,
@@ -532,36 +519,21 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                       Row(
                                                         children: [
                                                           Expanded(
-                                                              child: ListTile(
-                                                                horizontalTitleGap: -5,
-                                                                contentPadding: EdgeInsets.all(0),
-                                                                title: Text('쉬움', style: TextStyle(fontSize: 12),),
-                                                                leading: Radio<EVALUATION_TYPE>(
-                                                                    value: EVALUATION_TYPE.EASY,
-                                                                    groupValue: tempEvaluationType,
-                                                                    onChanged: (value) {
-                                                                      setState(() {
-                                                                        tempEvaluationType = value!;
-                                                                      });
-                                                                    },
-                                                                ),
-                                                              ),
-                                                            flex: 1,
-                                                          ),
-                                                          Expanded(
                                                             child: ListTile(
                                                               horizontalTitleGap: -5,
                                                               contentPadding: EdgeInsets.all(0),
-                                                              dense: true,
-                                                              title: Text('성공', style: TextStyle(fontSize: 12),),
+                                                              title: Text(
+                                                                '쉬움',
+                                                                style: TextStyle(fontSize: 12),
+                                                              ),
                                                               leading: Radio<EVALUATION_TYPE>(
-                                                                  value: EVALUATION_TYPE.SUCCESS,
-                                                                  groupValue: tempEvaluationType,
-                                                                  onChanged: (value) {
-                                                                    setState(() {
-                                                                      tempEvaluationType = value!;
-                                                                    });
-                                                                  },
+                                                                value: EVALUATION_TYPE.EASY,
+                                                                groupValue: tempEvaluationType,
+                                                                onChanged: (value) {
+                                                                  setState(() {
+                                                                    tempEvaluationType = value!;
+                                                                  });
+                                                                },
                                                               ),
                                                             ),
                                                             flex: 1,
@@ -570,15 +542,39 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                             child: ListTile(
                                                               horizontalTitleGap: -5,
                                                               contentPadding: EdgeInsets.all(0),
-                                                              title: Text('실패', style: TextStyle(fontSize: 12),),
+                                                              dense: true,
+                                                              title: Text(
+                                                                '성공',
+                                                                style: TextStyle(fontSize: 12),
+                                                              ),
                                                               leading: Radio<EVALUATION_TYPE>(
-                                                                  value: EVALUATION_TYPE.FAIL,
-                                                                  groupValue: tempEvaluationType,
-                                                                  onChanged: (value) {
-                                                                    setState(() {
-                                                                      tempEvaluationType = value!;
-                                                                    });
-                                                                  },
+                                                                value: EVALUATION_TYPE.SUCCESS,
+                                                                groupValue: tempEvaluationType,
+                                                                onChanged: (value) {
+                                                                  setState(() {
+                                                                    tempEvaluationType = value!;
+                                                                  });
+                                                                },
+                                                              ),
+                                                            ),
+                                                            flex: 1,
+                                                          ),
+                                                          Expanded(
+                                                            child: ListTile(
+                                                              horizontalTitleGap: -5,
+                                                              contentPadding: EdgeInsets.all(0),
+                                                              title: Text(
+                                                                '실패',
+                                                                style: TextStyle(fontSize: 12),
+                                                              ),
+                                                              leading: Radio<EVALUATION_TYPE>(
+                                                                value: EVALUATION_TYPE.FAIL,
+                                                                groupValue: tempEvaluationType,
+                                                                onChanged: (value) {
+                                                                  setState(() {
+                                                                    tempEvaluationType = value!;
+                                                                  });
+                                                                },
                                                               ),
                                                             ),
                                                             flex: 1,
@@ -589,18 +585,20 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                         children: [
                                                           Text('개선할 점'),
                                                           TextButton(
-                                                            onPressed: () async {
-                                                              var latestNote = await DBHelper.instance.getNote(nowWorkoutID, todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i);
+                                                              onPressed: () async {
+                                                                var latestNote = await DBHelper.instance.getNote(
+                                                                    nowWorkoutID, todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i);
 
-                                                              if(latestNote.length > 1) {
-                                                                setState(() {
-                                                                  textInputControllerNote.text = latestNote[1]['note'].toString();
-                                                                });  
-                                                              }
-                                                            },
-                                                            child: Text('지난 메모 불러오기', style: TextStyle(fontSize: 12),
-                                                            )
-                                                          )
+                                                                if (latestNote.length > 1) {
+                                                                  setState(() {
+                                                                    textInputControllerNote.text = latestNote[1]['note'].toString();
+                                                                  });
+                                                                }
+                                                              },
+                                                              child: Text(
+                                                                '지난 메모 불러오기',
+                                                                style: TextStyle(fontSize: 12),
+                                                              ))
                                                         ],
                                                       ),
                                                       TextField(
@@ -613,7 +611,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                     ],
                                                   );
                                                 },
-
                                               ),
                                               actions: [
                                                 TextButton(
@@ -629,9 +626,13 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                             int.parse(textInputControllerReps.text));
                                                       }
                                                       if (textInputControllerNote.text.length > 0) {
-                                                        DBHelper.updateNote(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], textInputControllerNote.text);
+                                                        DBHelper.updateNote(
+                                                            todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'],
+                                                            textInputControllerNote.text);
                                                       }
-                                                      DBHelper.updateEvaluationType(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'], tempEvaluationType.label);
+                                                      DBHelper.updateEvaluationType(
+                                                          todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['evaluationsID'],
+                                                          tempEvaluationType.label);
                                                       setTodayCompletedWorkouts();
                                                       Navigator.of(context).pop();
                                                     },
@@ -726,24 +727,22 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     setState(() => _scale = _scale == 100 ? 120 : 100);
   }
 
-
-
   Future<void> setTargetWeightReps(int workoutID, setInNumber) async {
     if (todayTargetWorkouts.length > 0) {
       var setHistory = await DBHelper.instance.getLatestSetHistory(workoutID);
 
       //과거에 히스토리가 없으면 오늘 데이터로 셋팅
-      if(setHistory.isEmpty) {
+      if (setHistory.isEmpty) {
         setLatestWeightReps(workoutID);
       }
       //과거에 히스토리가 있을 때 과거 데이터로 셋팅
-      else if(setHistory.isNotEmpty) {
+      else if (setHistory.isNotEmpty) {
         // 오늘 운동한 세트수가 가장 최근 세트수보다 많으면 오늘 데이터로 셋팅
         if (setHistory.length < setInNumber) {
           setLatestWeightReps(workoutID);
         } else {
           setHistory.forEach((element) {
-            if(setInNumber == element['set_order']) {
+            if (setInNumber == element['set_order']) {
               setNowWorkoutWeight(element['weight']);
               setNowWorkoutReps(element['result_num_time']);
             }
@@ -766,7 +765,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     });
 
     // print('이전 볼륨: $latestVolumn');
-
   }
 
   void setTodayVolumn(int workoutID) async {
@@ -804,7 +802,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     List<Map<String, dynamic>> recommendedWorkouts = await DBHelper.instance.getTodayTargetWorkoutId();
     List<Map<String, dynamic>> allWorkouts = await DBHelper.instance.getWorkouts();
     List<Map<String, dynamic>> targetWorkouts = List<Map<String, dynamic>>.from(recommendedWorkouts);
-
 
     List<int> targetWorkoutIDList = [];
     List<int> allWorkoutIDList = [];
@@ -1062,11 +1059,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
     var data = await DBHelper.instance.getLatestSetHistory(nowWorkoutID);
 
-    if(data.isEmpty) {
+    if (data.isEmpty) {
       setState(() {
         history = [];
       });
-    } else if(data.isNotEmpty) {
+    } else if (data.isNotEmpty) {
       setState(() {
         history = data;
         lastSetNumber = data.last['set_order'];
@@ -1076,13 +1073,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   void setSuggestionData() {
-
     if (history.isEmpty) {
       setSuggestionMessage('다음 운동부터 중량, 횟수가 자동설정 돼요');
     } else if (history.length >= nowSetNumber) {
       switchSuggestionMessage();
     } else if (history.length < nowSetNumber) {
-
       setState(() {
         suggestion_index = SUGGESTION_INDEX.OVER_SET_INFO;
       });
@@ -1090,20 +1085,21 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     }
   }
 
-void setSuggestionMessage(String string) {
+  void setSuggestionMessage(String string) {
     setState(() {
       message = string;
     });
-}
+  }
+
   void shuffleSuggestionMessage() {
     int index = SUGGESTION_INDEX.values.indexOf(suggestion_index);
-    if( index < SUGGESTION_INDEX.values.length ) {
+    if (index < SUGGESTION_INDEX.values.length) {
       setState(() {
         index += 1;
-        if(index >= SUGGESTION_INDEX.values.length) {
+        if (index >= SUGGESTION_INDEX.values.length) {
           index = 0;
         }
-        if(index == SUGGESTION_INDEX.values.indexOf(SUGGESTION_INDEX.OVER_SET_INFO)) {
+        if (index == SUGGESTION_INDEX.values.indexOf(SUGGESTION_INDEX.OVER_SET_INFO)) {
           index = 0;
         }
         suggestion_index = SUGGESTION_INDEX.values[index];
@@ -1111,6 +1107,7 @@ void setSuggestionMessage(String string) {
     }
     setSuggestionData();
   }
+
   void switchSuggestionMessage() {
     int set;
     int weight;
@@ -1118,48 +1115,47 @@ void setSuggestionMessage(String string) {
     String type;
     String note;
 
-      switch (suggestion_index) {
-        case SUGGESTION_INDEX.LATEST_SET_INFO:
-          set = history[nowSetNumber - 1]['set_order'];
-          weight = history[nowSetNumber - 1]['weight'];
-          reps = history[nowSetNumber - 1]['result_num_time'];
-          type = history[nowSetNumber - 1]['type'];
-          setSuggestionMessage('지난 번 ${set}세트 ${weight}kg, $reps회는 $type했어요');
-          break;
-        case SUGGESTION_INDEX.NOTE_INFO:
-          if(history[nowSetNumber - 1]['note'].isEmpty) {
-            if(nowSetNumber == 1) {
-              note = '세트 종료 후 메모를 남겨보세요';
-            } else {
-              note = '조금 전 세트를 메모해보세요\n다음 운동시 리마인드 해드려요';
-            }
+    switch (suggestion_index) {
+      case SUGGESTION_INDEX.LATEST_SET_INFO:
+        set = history[nowSetNumber - 1]['set_order'];
+        weight = history[nowSetNumber - 1]['weight'];
+        reps = history[nowSetNumber - 1]['result_num_time'];
+        type = history[nowSetNumber - 1]['type'];
+        setSuggestionMessage('지난 번 ${set}세트 ${weight}kg, $reps회는 $type했어요');
+        break;
+      case SUGGESTION_INDEX.NOTE_INFO:
+        if (history[nowSetNumber - 1]['note'].isEmpty) {
+          if (nowSetNumber == 1) {
+            note = '세트 종료 후 메모를 남겨보세요';
           } else {
-            note = history[nowSetNumber - 1]['note'];
+            note = '조금 전 세트를 메모해보세요\n다음 운동시 리마인드 해드려요';
           }
-          
-          setSuggestionMessage(note);
-          break;
-        case SUGGESTION_INDEX.NEXT_SET_INFO:
-          if(nowSetNumber == lastSetNumber) {
-            setSuggestionMessage('마지막 세트, 조금만 더 힘내세요!');
-          } else {
-            weight = history[nowSetNumber]['weight'];
-            reps = history[nowSetNumber]['result_num_time'];
-            type = history[nowSetNumber]['type'];
-            setSuggestionMessage('다음 세트 ${weight}kg, $reps회에서는 $type했어요');
-          }
-          break;
-        case SUGGESTION_INDEX.OVER_SET_INFO:
-          num difference = (todayVolumn - latestVolumn).abs();
-          if (todayVolumn == latestVolumn) {
-            setSuggestionMessage('지난 번과 볼륨이 같아요');
-          } else if (todayVolumn < latestVolumn) {
-            setSuggestionMessage('지난 번 보다 볼륨이 ${difference}kg 줄었어요');
-          } else if (todayVolumn > latestVolumn) {
-            setSuggestionMessage('지난 번 보다 볼륨이 ${difference}kg 늘었어요');
-          }
+        } else {
+          note = history[nowSetNumber - 1]['note'];
+        }
 
-      }
+        setSuggestionMessage(note);
+        break;
+      case SUGGESTION_INDEX.NEXT_SET_INFO:
+        if (nowSetNumber == lastSetNumber) {
+          setSuggestionMessage('마지막 세트, 조금만 더 힘내세요!');
+        } else {
+          weight = history[nowSetNumber]['weight'];
+          reps = history[nowSetNumber]['result_num_time'];
+          type = history[nowSetNumber]['type'];
+          setSuggestionMessage('다음 세트 ${weight}kg, $reps회에서는 $type했어요');
+        }
+        break;
+      case SUGGESTION_INDEX.OVER_SET_INFO:
+        num difference = (todayVolumn - latestVolumn).abs();
+        if (todayVolumn == latestVolumn) {
+          setSuggestionMessage('지난 번과 볼륨이 같아요');
+        } else if (todayVolumn < latestVolumn) {
+          setSuggestionMessage('지난 번 보다 볼륨이 ${difference}kg 줄었어요');
+        } else if (todayVolumn > latestVolumn) {
+          setSuggestionMessage('지난 번 보다 볼륨이 ${difference}kg 늘었어요');
+        }
+    }
   }
 
   void _scrollDown() {

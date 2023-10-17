@@ -1,5 +1,5 @@
-
 enum TIMER_TYPE { UP, DOWN }
+
 enum APP_STATUS { FINISH, IN_WORKOUT, IN_BREAK }
 
 enum EVALUATION_TYPE {
@@ -16,8 +16,6 @@ enum EVALUATION_TYPE {
     print(label);
     return EVALUATION_TYPE.values.firstWhere((value) => value.label == label);
   }
-
 }
 
 enum SUGGESTION_INDEX { LATEST_SET_INFO, NOTE_INFO, NEXT_SET_INFO, OVER_SET_INFO }
-

@@ -10,6 +10,15 @@ class Suggestion {
   int? volumn;
   String? nextWorkout;
 
-  Suggestion({ required this.setNumber, this.lastWeight, this.lastReps, this.lastEvaluationType, this.lastNote, this.nextWeight, this.nextReps, this.nextEvaluationType, this.volumn, this.nextWorkout});
-
+  Suggestion(
+      {required this.setNumber,
+      this.lastWeight,
+      this.lastReps,
+      this.lastEvaluationType,
+      this.lastNote,
+      this.nextWeight,
+      this.nextReps,
+      this.nextEvaluationType,
+      this.volumn,
+      this.nextWorkout});
 }

@@ -21,14 +21,7 @@ class ShowWorkoutScreen extends StatelessWidget {
         body: SingleChildScrollView(
           child: Column(
             mainAxisSize: MainAxisSize.min,
-            children: [
-              Text('Workouts'),
-              WorkoutList(),
-              Text('Sets'),
-              SetList(),
-              Text('Evaluations'),
-              EvaluationList()
-            ],
+            children: [Text('Workouts'), WorkoutList(), Text('Sets'), SetList(), Text('Evaluations'), EvaluationList()],
           ),
         ));
   }
@@ -36,8 +29,7 @@ class ShowWorkoutScreen extends StatelessWidget {
   Widget WorkoutList() {
     return FutureBuilder<List<Map<String, dynamic>>>(
         future: DBHelper.instance.getWorkouts(),
-        builder: (BuildContext context,
-            AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<List<Map<String, dynamic>>> snapshot) {
           if (snapshot.hasData) {
             return Container(
               child: ListView.builder(
@@ -45,8 +37,7 @@ class ShowWorkoutScreen extends StatelessWidget {
                   shrinkWrap: true,
                   itemBuilder: (BuildContext context, int index) {
                     return ListTile(
-                      leading:
-                          Text(snapshot.data![index]['workout'].toString()),
+                      leading: Text(snapshot.data![index]['workout'].toString()),
                       title: Text(snapshot.data![index]['name']),
                     );
                   }),
@@ -89,8 +80,7 @@ class ShowWorkoutScreen extends StatelessWidget {
   Widget EvaluationList() {
     return FutureBuilder<List<Evaluations>>(
         future: DBHelper.instance.getEvaluations(),
-        builder:
-            (BuildContext context, AsyncSnapshot<List<Evaluations>> snapshot) {
+        builder: (BuildContext context, AsyncSnapshot<List<Evaluations>> snapshot) {
           if (snapshot.hasData) {
             return Container(
               child: ListView.builder(
@@ -99,10 +89,7 @@ class ShowWorkoutScreen extends StatelessWidget {
                   itemBuilder: (BuildContext context, int index) {
                     return ListTile(
                       leading: Text(snapshot.data![index].id.toString()),
-                      title: Text('setID ' +
-                          snapshot.data![index].set.toString() +
-                          ' ' +
-                          snapshot.data![index].type.toString()),
+                      title: Text('setID ' + snapshot.data![index].set.toString() + ' ' + snapshot.data![index].type.toString()),
                     );
                   }),
             );
@@ -111,5 +98,4 @@ class ShowWorkoutScreen extends StatelessWidget {
           }
         });
   }
-
 }

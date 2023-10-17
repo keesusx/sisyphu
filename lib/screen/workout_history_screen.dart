@@ -35,12 +35,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
     syncWorkoutDates();
 
     Future.delayed(Duration(milliseconds: 300), () {
-      dates = List.generate(
-              dateGenerateNumber,
-              (index) => DateTime.now()
-                  .subtract(Duration(days: dateGenerateNumber - (index + 1))))
-          .reversed
-          .toList();
+      dates = List.generate(dateGenerateNumber, (index) => DateTime.now().subtract(Duration(days: dateGenerateNumber - (index + 1)))).reversed.toList();
       fetchHistoryData();
       isLoading = false;
     });
@@ -75,70 +70,43 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
             ],
           ),
         ),
-        body: TabBarView(
-            children: [
+        body: TabBarView(children: [
           isLoading == true
-              ? Center(child: Text('기록이 없습니다.'),)
+              ? Center(
+                  child: Text('기록이 없습니다.'),
+                )
               : Scrollbar(
                   controller: _scrollController,
                   child: ListView.separated(
-                    separatorBuilder: (BuildContext context, int index) =>
-                        Divider(
+                    separatorBuilder: (BuildContext context, int index) => Divider(
                       thickness: 1,
                     ),
                     controller: _scrollController,
                     itemCount: resultInGroup.length,
                     itemBuilder: (context, index) {
                       return Theme(
-                        data: Theme.of(context)
-                            .copyWith(dividerColor: Colors.transparent),
+                        data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
                         child: ExpansionTile(
                             // leading: Text(daysFormat.format(DateTime.parse(resultInGroup.keys.toList()[index])).substring(0,1)),
                             title: Row(
                               children: [
-                                Text(resultInGroup.keys
-                                    .toList()[index]
-                                    .toString()),
+                                Text(resultInGroup.keys.toList()[index].toString()),
                                 Text(' '),
-                                Text(daysFormat
-                                    .format(DateTime.parse(
-                                        resultInGroup.keys.toList()[index]))
-                                    .substring(0, 1))
+                                Text(daysFormat.format(DateTime.parse(resultInGroup.keys.toList()[index])).substring(0, 1))
                               ],
                             ),
-                            trailing: resultInGroup.entries
-                                        .toList()[index]
-                                        .value
-                                        .toList()
-                                        .first['bodypart'] !=
-                                    null
+                            trailing: resultInGroup.entries.toList()[index].value.toList().first['bodypart'] != null
                                 ? Icon(Icons.keyboard_arrow_down_outlined)
                                 : Icon(null),
                             subtitle: Row(
                               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                               children: [
-                                calDateDiffInString(resultInGroup.entries
-                                    .toList()[index]
-                                    .value
-                                    .toList()
-                                    .first['datediff']
-                                    .ceil()),
-                                titleWithBodyparts(
-                                    index,
-                                    resultInGroup.entries
-                                        .toList()[index]
-                                        .value
-                                        .toList()
-                                        .length)
+                                calDateDiffInString(resultInGroup.entries.toList()[index].value.toList().first['datediff'].ceil()),
+                                titleWithBodyparts(index, resultInGroup.entries.toList()[index].value.toList().length)
                               ],
                             ),
                             children: [
-                              resultInGroup.entries
-                                          .toList()[index]
-                                          .value
-                                          .toList()
-                                          .first['bodypart'] !=
-                                      null
+                              resultInGroup.entries.toList()[index].value.toList().first['bodypart'] != null
                                   ? SingleChildScrollView(
                                       scrollDirection: Axis.horizontal,
                                       child: DataTable(
@@ -156,9 +124,16 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
                     },
                   ),
                 ),
-
-          Container(child: Center(child: Text('준비 중입니다'),),),
-          Container(child: Center(child: Text('준비 중입니다'),),),
+          Container(
+            child: Center(
+              child: Text('준비 중입니다'),
+            ),
+          ),
+          Container(
+            child: Center(
+              child: Text('준비 중입니다'),
+            ),
+          ),
         ]),
       ),
     );
@@ -178,10 +153,8 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   Widget titleWithBodyparts(int k, int j) {
     List<String> temp = [];
     for (int i = 0; i < j; i++) {
-      if (resultInGroup.entries.toList()[k].value.toList()[i]['bodypart'] !=
-          null) {
-        temp.add(
-            resultInGroup.entries.toList()[k].value.toList()[i]['bodypart']);
+      if (resultInGroup.entries.toList()[k].value.toList()[i]['bodypart'] != null) {
+        temp.add(resultInGroup.entries.toList()[k].value.toList()[i]['bodypart']);
       } else {
         temp.add('휴식');
       }
@@ -215,66 +188,30 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
         setListInGroup.keys.toList().forEachIndexed((i, value) {
           if (value == element.toString().substring(0, 10)) {
             setState(() {
-              for (int j = 0;
-                  j < setListInGroup.entries.toList()[i].value.length;
-                  j++) {
+              for (int j = 0; j < setListInGroup.entries.toList()[i].value.length; j++) {
                 result.add({
                   "date": element.toString().substring(0, 10),
-                  "name": setListInGroup.entries.toList()[i].value.toList()[j]
-                      ['name'],
-                  "bodypart": setListInGroup.entries
-                      .toList()[i]
-                      .value
-                      .toList()[j]['bodypart_name']
-                      .toString(),
-                  "datediff": setListInGroup.entries
-                      .toList()[i]
-                      .value
-                      .toList()[j]['datediff'],
-                  "count": setListInGroup.entries.toList()[i].value.toList()[j]
-                      ['count'],
-                  "minimum_weight": setListInGroup.entries
-                      .toList()[i]
-                      .value
-                      .toList()[j]['minimum_weight'],
-                  "maximum_weight": setListInGroup.entries
-                      .toList()[i]
-                      .value
-                      .toList()[j]['maximum_weight'],
-                  "average_weight": setListInGroup.entries
-                      .toList()[i]
-                      .value
-                      .toList()[j]['average_weight'],
-                  "minimum_reps": setListInGroup.entries
-                      .toList()[i]
-                      .value
-                      .toList()[j]['minimum_reps'],
-                  "maximum_reps": setListInGroup.entries
-                      .toList()[i]
-                      .value
-                      .toList()[j]['maximum_reps'],
-                  "average_reps": setListInGroup.entries
-                      .toList()[i]
-                      .value
-                      .toList()[j]['average_reps'],
-                  "volumn": setListInGroup.entries.toList()[i].value.toList()[j]
-                      ['volumn'],
+                  "name": setListInGroup.entries.toList()[i].value.toList()[j]['name'],
+                  "bodypart": setListInGroup.entries.toList()[i].value.toList()[j]['bodypart_name'].toString(),
+                  "datediff": setListInGroup.entries.toList()[i].value.toList()[j]['datediff'],
+                  "count": setListInGroup.entries.toList()[i].value.toList()[j]['count'],
+                  "minimum_weight": setListInGroup.entries.toList()[i].value.toList()[j]['minimum_weight'],
+                  "maximum_weight": setListInGroup.entries.toList()[i].value.toList()[j]['maximum_weight'],
+                  "average_weight": setListInGroup.entries.toList()[i].value.toList()[j]['average_weight'],
+                  "minimum_reps": setListInGroup.entries.toList()[i].value.toList()[j]['minimum_reps'],
+                  "maximum_reps": setListInGroup.entries.toList()[i].value.toList()[j]['maximum_reps'],
+                  "average_reps": setListInGroup.entries.toList()[i].value.toList()[j]['average_reps'],
+                  "volumn": setListInGroup.entries.toList()[i].value.toList()[j]['volumn'],
                 });
               }
             });
           }
         });
       } else {
-        result.add({
-          "date": element.toString().substring(0, 10),
-          "datediff": DateTime.now()
-              .difference(DateTime.parse(element.toIso8601String()))
-              .inDays
-        });
+        result.add({"date": element.toString().substring(0, 10), "datediff": DateTime.now().difference(DateTime.parse(element.toIso8601String())).inDays});
       }
     });
-    resultInGroup =
-        result.groupListsBy((obj) => obj['date'].toString().substring(0, 10));
+    resultInGroup = result.groupListsBy((obj) => obj['date'].toString().substring(0, 10));
   }
 
   void scrollListener() {
@@ -306,8 +243,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
     ];
 
     List<DataColumn> dataColumn = [];
-    setHistoryDataDivisions.forEach(
-        (item) => dataColumn.add(DataColumn(label: Text(item, style: _style))));
+    setHistoryDataDivisions.forEach((item) => dataColumn.add(DataColumn(label: Text(item, style: _style))));
     return dataColumn;
   }
 
@@ -317,85 +253,33 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
     List<DataRow> dataRow = [];
     for (int j = 0; j < resultInGroup.entries.toList()[index].value.length; j++) {
       List<DataCell> dataCells = [];
-      dataCells.add(DataCell(Text(
-          resultInGroup.entries
-              .toList()[index]
-              .value
-              .toList()[j]['bodypart']
-              .toString(),
-          style: _style)));
+      dataCells.add(DataCell(Text(resultInGroup.entries.toList()[index].value.toList()[j]['bodypart'].toString(), style: _style)));
       dataCells.add(DataCell(ConstrainedBox(
         constraints: BoxConstraints(maxWidth: 120),
-        child: Text(
-            resultInGroup.entries
-                .toList()[index]
-                .value
-                .toList()[j]['name']
-                .toString(),
-            overflow: TextOverflow.ellipsis,
-            style: _style),
+        child: Text(resultInGroup.entries.toList()[index].value.toList()[j]['name'].toString(), overflow: TextOverflow.ellipsis, style: _style),
       )));
 
-     
-
-      if (resultInGroup.entries.toList()[index].value.toList()[j]
-              ['minimum_weight'] ==
-          resultInGroup.entries.toList()[index].value.toList()[j]
-              ['maximum_weight']) {
-        dataCells.add(DataCell(Text(resultInGroup.entries
-                .toList()[index]
-                .value
-                .toList()[j]['minimum_weight']
-                .toString() +
-            'kg')));
+      if (resultInGroup.entries.toList()[index].value.toList()[j]['minimum_weight'] ==
+          resultInGroup.entries.toList()[index].value.toList()[j]['maximum_weight']) {
+        dataCells.add(DataCell(Text(resultInGroup.entries.toList()[index].value.toList()[j]['minimum_weight'].toString() + 'kg')));
       } else {
         dataCells.add(DataCell(Text(
-            resultInGroup.entries
-                    .toList()[index]
-                    .value
-                    .toList()[j]['minimum_weight']
-                    .toString() +
+            resultInGroup.entries.toList()[index].value.toList()[j]['minimum_weight'].toString() +
                 '~' +
-                resultInGroup.entries
-                    .toList()[index]
-                    .value
-                    .toList()[j]['maximum_weight']
-                    .toString() +
+                resultInGroup.entries.toList()[index].value.toList()[j]['maximum_weight'].toString() +
                 'kg',
             style: _style)));
       }
 
-       dataCells.add(DataCell(Text(
-          resultInGroup.entries
-              .toList()[index]
-              .value
-              .toList()[j]['count']
-              .toString(),
-          style: _style)));
-          
+      dataCells.add(DataCell(Text(resultInGroup.entries.toList()[index].value.toList()[j]['count'].toString(), style: _style)));
 
-      if (resultInGroup.entries.toList()[index].value.toList()[j]
-              ['minimum_reps'] ==
-          resultInGroup.entries.toList()[index].value.toList()[j]
-              ['maximum_reps']) {
-        dataCells.add(DataCell(Text(resultInGroup.entries
-            .toList()[index]
-            .value
-            .toList()[j]['minimum_reps']
-            .toString())));
+      if (resultInGroup.entries.toList()[index].value.toList()[j]['minimum_reps'] == resultInGroup.entries.toList()[index].value.toList()[j]['maximum_reps']) {
+        dataCells.add(DataCell(Text(resultInGroup.entries.toList()[index].value.toList()[j]['minimum_reps'].toString())));
       } else {
         dataCells.add(DataCell(Text(
-            resultInGroup.entries
-                    .toList()[index]
-                    .value
-                    .toList()[j]['minimum_reps']
-                    .toString() +
+            resultInGroup.entries.toList()[index].value.toList()[j]['minimum_reps'].toString() +
                 '~' +
-                resultInGroup.entries
-                    .toList()[index]
-                    .value
-                    .toList()[j]['maximum_reps']
-                    .toString(),
+                resultInGroup.entries.toList()[index].value.toList()[j]['maximum_reps'].toString(),
             style: _style)));
       }
       dataRow.add(DataRow(cells: dataCells));

@@ -7,7 +7,6 @@ class Sets {
   final String createdAt;
   final String updatedAt;
 
-
   Sets(
       {this.id,
       required this.workout,

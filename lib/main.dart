@@ -7,19 +7,16 @@ import 'package:firebase_analytics/firebase_analytics.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
 
-
 void main() async {
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform
-  );
+  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
-  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-      overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: [SystemUiOverlay.bottom, SystemUiOverlay.top]);
   Wakelock.enable();
   runApp(const MyApp());
   FlutterNativeSplash.remove();
 }
+
 class MyApp extends StatelessWidget {
   const MyApp({Key? key}) : super(key: key);
 
@@ -31,11 +28,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Sisyphu',
-      theme: ThemeData(
-          appBarTheme:
-              AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.dark),
-          primarySwatch: Colors.pink,
-          fontFamily: 'Jamsil'),
+      theme: ThemeData(appBarTheme: AppBarTheme(systemOverlayStyle: SystemUiOverlayStyle.dark), primarySwatch: Colors.pink, fontFamily: 'Jamsil'),
       navigatorObservers: <NavigatorObserver>[observer],
       home: const MainScreen(),
     );

@@ -11,7 +11,7 @@
 ///      fonts:
 ///       - asset: fonts/MyFlutterApp.ttf
 ///
-/// 
+///
 /// * Modern Pictograms, Copyright (c) 2012 by John Caserta. All rights reserved.
 ///         Author:    John Caserta
 ///         License:   SIL (http://scripts.sil.org/OFL)

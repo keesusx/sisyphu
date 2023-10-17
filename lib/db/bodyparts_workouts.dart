@@ -5,15 +5,9 @@ class BodypartsWorkouts {
   final String createdAt;
   final String updatedAt;
 
-  BodypartsWorkouts(
-      {this.id,
-      this.workout,
-      this.bodypart,
-      required this.createdAt,
-      required this.updatedAt});
+  BodypartsWorkouts({this.id, this.workout, this.bodypart, required this.createdAt, required this.updatedAt});
 
-  factory BodypartsWorkouts.fromMap(Map<String, dynamic> json) =>
-      BodypartsWorkouts(
+  factory BodypartsWorkouts.fromMap(Map<String, dynamic> json) => BodypartsWorkouts(
         id: json['id'],
         workout: json['workout'],
         bodypart: json['bodypart'],
@@ -22,12 +16,6 @@ class BodypartsWorkouts {
       );
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'workout': workout,
-      'bodypart': bodypart,
-      'created_at': createdAt,
-      'updated_at': updatedAt
-    };
+    return {'id': id, 'workout': workout, 'bodypart': bodypart, 'created_at': createdAt, 'updated_at': updatedAt};
   }
 }

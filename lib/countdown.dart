@@ -71,15 +71,12 @@ class _CountDownState extends State<CountDown> {
       children: [
         Text(
           '$minutes:$seconds',
-          style: TextStyle(
-              fontWeight: FontWeight.bold, color: Colors.black, fontSize: 50),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black, fontSize: 50),
         ),
         SizedBox(height: 20),
         isStart == false
             ? ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    fixedSize: const Size(150, 150),
-                    shape: const CircleBorder()),
+                style: ElevatedButton.styleFrom(fixedSize: const Size(150, 150), shape: const CircleBorder()),
                 onPressed: startTimer,
                 child: Text(
                   '시작',
@@ -89,9 +86,7 @@ class _CountDownState extends State<CountDown> {
                 ),
               )
             : ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    fixedSize: const Size(150, 150),
-                    shape: const CircleBorder()),
+                style: ElevatedButton.styleFrom(fixedSize: const Size(150, 150), shape: const CircleBorder()),
                 onPressed: () {
                   if (countTimer == null || countTimer!.isActive) {
                     resetTimer();
@@ -107,27 +102,21 @@ class _CountDownState extends State<CountDown> {
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
                               ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    fixedSize: const Size(20, 20),
-                                    shape: const CircleBorder()),
+                                style: ElevatedButton.styleFrom(fixedSize: const Size(20, 20), shape: const CircleBorder()),
                                 onPressed: () {},
                                 child: Text(
                                   '쉬움',
                                 ),
                               ),
                               ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    fixedSize: const Size(20, 20),
-                                    shape: const CircleBorder()),
+                                style: ElevatedButton.styleFrom(fixedSize: const Size(20, 20), shape: const CircleBorder()),
                                 onPressed: () {},
                                 child: Text(
                                   '적당',
                                 ),
                               ),
                               ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                    fixedSize: const Size(20, 20),
-                                    shape: const CircleBorder()),
+                                style: ElevatedButton.styleFrom(fixedSize: const Size(20, 20), shape: const CircleBorder()),
                                 onPressed: () {},
                                 child: Text(
                                   '실패',
@@ -138,11 +127,9 @@ class _CountDownState extends State<CountDown> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              TextButton(
-                                  onPressed: () {}, child: Icon(Icons.remove)),
+                              TextButton(onPressed: () {}, child: Icon(Icons.remove)),
                               Text('10회'),
-                              TextButton(
-                                  onPressed: () {}, child: Icon(Icons.add))
+                              TextButton(onPressed: () {}, child: Icon(Icons.add))
                             ],
                           )
                         ],

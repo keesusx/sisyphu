@@ -1,5 +1,6 @@
 import 'package:collection/collection.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:sisyphu/db/bodyparts.dart';
 import '../db/db_helper.dart';
 import '../db/workouts.dart';
@@ -23,15 +24,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
 
   late List<BodyParts> bodypartsFromDB;
 
-  List<String> chestEntries = [
-    '벤치 프레스',
-    '인클라인 벤치 프레스',
-    '체스트 프레스',
-    '케이블 플라이',
-    '펙덱 플라이',
-    '딥스',
-    '푸시업'
-  ];
+  List<String> chestEntries = ['벤치 프레스', '인클라인 벤치 프레스', '체스트 프레스', '케이블 플라이', '펙덱 플라이', '딥스', '푸시업'];
 
   List<String> backEntries = [
     '풀 업',
@@ -51,14 +44,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
     '백 플라이',
   ];
 
-  List<String> armEntries = [
-    '바벨 컬',
-    '덤벨 컬',
-    '머신 컬',
-    '해머 컬',
-    '오버헤드 익스텐션',
-    '덤벨 킥백'
-  ];
+  List<String> armEntries = ['바벨 컬', '덤벨 컬', '머신 컬', '해머 컬', '오버헤드 익스텐션', '덤벨 킥백'];
 
   List<String> legEntries = [
     '스쿼트',
@@ -82,8 +68,6 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
       setBodyparts();
     });
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -124,8 +108,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                       Flexible(
                         fit: FlexFit.loose,
                         child: TextField(
-                          decoration: InputDecoration(
-                              border: OutlineInputBorder(), labelText: '운동이름'),
+                          decoration: InputDecoration(border: OutlineInputBorder(), labelText: '운동이름'),
                           controller: textController,
                         ),
                       ),
@@ -135,18 +118,15 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
                             updatedAt = DateTime.now().toIso8601String();
                             if (textController.text != '' && dropdownBodyPartValue != '') {
                               await DBHelper.instance.insertWorkouts(Workouts(
-                                      name: textController.text,
-                                      created_at: createdAt,
-                                      updated_at: updatedAt,
-                                      body_part: dropdownBodyPartIDValue));
+                                  name: textController.text, created_at: createdAt, updated_at: updatedAt, body_part: dropdownBodyPartIDValue));
                               setState(() {
                                 textController.clear();
-
                               });
                               setWorkoutList();
                             }
                           },
-                          icon: Icon(Icons.add_circle_rounded), color: Colors.pink)
+                          icon: Icon(Icons.add_circle_rounded),
+                          color: Colors.pink)
                     ],
                   ),
                 ),
@@ -187,9 +167,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Row(
-        children: [
-          Text(text, style: TextStyle(fontSize: 20))
-        ],
+        children: [Text(text, style: TextStyle(fontSize: 20))],
       ),
     );
   }
@@ -207,29 +185,100 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
             child: ExpansionTile(
                 initiallyExpanded: true,
                 title: Text(workoutsInGroup.keys.toList()[index].toString()),
-                children: List<Widget>.generate(
-                    workoutsInGroup.entries.toList()[index].value.length,
-                    (int i) {
+                children: List<Widget>.generate(workoutsInGroup.entries.toList()[index].value.length, (int i) {
+                  print(workoutsInGroup.entries.toList()[index].value.toList());
                   return Padding(
-                    padding: const EdgeInsets.all(10.0),
-                    child: SizedBox(
-                      height: 20,
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Text(workoutsInGroup.entries
-                              .toList()[index]
-                              .value
-                              .toList()[i]['workout_name']
-                              .toString()),
-                        ],
-                      ),
-                    )
+                    padding: const EdgeInsets.all(2.0),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Expanded(flex: 1, child: Text(workoutsInGroup.entries.toList()[index].value.toList()[i]['workout_name'].toString())),
+                        Expanded(
+                            flex: 1,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              children: [
+                                IconButton(
+                                    onPressed: () {
+                                      final textInputWorkoutName = TextEditingController();
+                                      var newWorkoutName = workoutsInGroup.entries.toList()[index].value.toList()[i]['workout_name'].toString();
+
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) => AlertDialog(
+                                                title: Text('운동명 수정하기'),
+                                                content: StatefulBuilder(
+                                                  builder: (context, setState) {
+                                                    return Column(
+                                                      mainAxisSize: MainAxisSize.min,
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children: [
+                                                        TextField(
+                                                          controller: textInputWorkoutName,
+                                                          decoration: InputDecoration(hintText: '${newWorkoutName}'),
+                                                        ),
+                                                      ],
+                                                    );
+                                                  },
+                                                ),
+                                                actions: [
+                                                  TextButton(
+                                                      onPressed: () {
+                                                        updateWorkout(workoutsInGroup.entries.toList()[index].value.toList()[i]['workout_id'],
+                                                            textInputWorkoutName.text);
+                                                        setWorkoutList();
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: Text('확인')),
+                                                  TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: Text('취소'))
+                                                ],
+                                              ));
+                                    },
+                                    icon: Icon(Icons.edit)),
+                                IconButton(
+                                    onPressed: () {
+                                      showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) => AlertDialog(
+                                                title: Text('운동 삭제하기'),
+                                                content: Text('${workoutsInGroup.entries.toList()[index].value.toList()[i]['workout_name']} 삭제할까요?'),
+                                                actions: [
+                                                  TextButton(
+                                                      onPressed: () {
+                                                        deleteWorkout(workoutsInGroup.entries.toList()[index].value.toList()[i]['workout_id']);
+                                                        setWorkoutList();
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: Text('네')),
+                                                  TextButton(
+                                                      onPressed: () {
+                                                        Navigator.of(context).pop();
+                                                      },
+                                                      child: Text('취소'))
+                                                ],
+                                              ));
+                                    },
+                                    icon: Icon(Icons.delete))
+                              ],
+                            )),
+                      ],
+                    ),
                   );
-                })
-                ),
+                })),
           );
         });
+  }
+
+  void updateWorkout(int id, String string) {
+    DBHelper.updateWorkout(id, string);
+  }
+
+  void deleteWorkout(int id) {
+    DBHelper.deleteWorkout(id);
   }
 
   void setBodyparts() async {
@@ -245,8 +294,7 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
     workoutsInGroup = {};
     workouts = await DBHelper.instance.getWorkoutWithBodyPart();
     setState(() {
-      workoutsInGroup =
-          groupBy(workouts, (Map obj) => obj['bodypart_name']).cast<String, List>();
+      workoutsInGroup = groupBy(workouts, (Map obj) => obj['bodypart_name']).cast<String, List>();
     });
   }
 
@@ -315,5 +363,4 @@ class _AddWorkoutScreenState extends State<AddWorkoutScreen> {
         break;
     }
   }
-
 }

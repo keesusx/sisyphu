@@ -4,14 +4,9 @@ class BodyParts {
   final String createdAt;
   final String updatedAt;
 
-  BodyParts(
-      {this.id,
-        this.name,
-        required this.createdAt,
-        required this.updatedAt});
+  BodyParts({this.id, this.name, required this.createdAt, required this.updatedAt});
 
-  factory BodyParts.fromMap(Map<String, dynamic> json) =>
-      BodyParts(
+  factory BodyParts.fromMap(Map<String, dynamic> json) => BodyParts(
         id: json['id'],
         name: json['name'],
         createdAt: json['created_at'],
@@ -19,11 +14,6 @@ class BodyParts {
       );
 
   Map<String, dynamic> toMap() {
-    return {
-      'id': id,
-      'name': name,
-      'created_at': createdAt,
-      'updated_at': updatedAt
-    };
+    return {'id': id, 'name': name, 'created_at': createdAt, 'updated_at': updatedAt};
   }
 }
