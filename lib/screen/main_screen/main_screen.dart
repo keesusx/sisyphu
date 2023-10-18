@@ -13,6 +13,7 @@ import '../../db/db_helper.dart';
 import 'package:collection/collection.dart';
 import '../../utils/enums.dart';
 import 'package:badges/badges.dart' as badges;
+import '../../utils/target.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -852,7 +853,13 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       });
     }
 
-    if (todayTargetWorkouts.length > 0) {
+    // // print('today targets: $todayTargetWorkouts');
+    // print(todayTargetWorkouts[0]['workout'].runtimeType);
+
+    // // List<Target> targets = todayTargetWorkouts.map((c) => Target.fromMap(c)).toList();
+    // // print('targets: $targets');
+
+    if (todayTargetWorkouts.isNotEmpty) {
       setNowWorkoutName(todayTargetWorkouts[workoutIndex]['name']);
     }
   }
@@ -1097,7 +1104,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   void setSuggestionData() {
     if (history.isEmpty) {
-      setSuggestionMessage('다음 운동부터 중량, 횟수가 자동설정 돼요');
+      if(nowSetNumber > 1) {
+        setSuggestionMessage('조금 전 세트를 메모해보세요\n다음 운동시 리마인드 해드려요');
+      } else {
+        setSuggestionMessage('다음 운동부터 중량, 횟수가 자동설정 돼요');
+      }
     } else if (history.length >= nowSetNumber) {
       switchSuggestionMessage();
     } else if (history.length < nowSetNumber) {
