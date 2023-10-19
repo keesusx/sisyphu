@@ -1,9 +1,7 @@
 import 'dart:async';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:sisyphu/db/workouts.dart';
 import 'package:sisyphu/screen/add_workout_screen.dart';
 import 'package:sisyphu/screen/main_screen/suggestion.dart';
 import 'package:sisyphu/screen/main_screen/suggestion_widget.dart';
@@ -31,7 +29,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   EVALUATION_TYPE _evaluationType = EVALUATION_TYPE.SUCCESS;
 
   Timer? countTimer;
-  Duration myDuration = Duration(minutes: 0, seconds: 00);
+  Duration myDuration = const Duration(minutes: 0, seconds: 00);
   bool wasPause = false;
   bool isWorkoutEmpty = true;
   Suggestion suggestion = Suggestion(setNumber: 0);
@@ -157,8 +155,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   @override
   Widget build(BuildContext context) {
-    TextStyle _onWorkoutTextStyle = TextStyle(color: Colors.pink);
-    TextStyle _onBreakTextStyle = TextStyle(color: Colors.black);
+    TextStyle _onWorkoutTextStyle = const TextStyle(color: Colors.pink);
+    TextStyle _onBreakTextStyle = const TextStyle(color: Colors.black);
 
     return Scaffold(
         resizeToAvoidBottomInset: false,
@@ -175,7 +173,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             IconButton(
                 onPressed: () {
                   Analytics.sendAnalyticsEvent('add_workout_icon');
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => AddWorkoutScreen())).then((value) async {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const AddWorkoutScreen())).then((value) async {
                     //Navigation Stack이 다시 돌아왔을때 콜백
                     ensureEmptyWorkout();
                     setTargetWorkout();
@@ -195,16 +193,16 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                               width: 30,
                               height: 30,
                               decoration: BoxDecoration(shape: BoxShape.circle, border: Border.all(color: Colors.pink, width: 2))),
-                          Icon(Icons.add, color: Colors.pink)
+                          const Icon(Icons.add, color: Colors.pink)
                         ],
                       )
-                    : Icon(Icons.add)),
+                    : const Icon(Icons.add)),
             IconButton(
                 onPressed: () {
                   Analytics.sendAnalyticsEvent('history_icon');
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => WorkoutHistoryScreen()));
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => const WorkoutHistoryScreen()));
                 },
-                icon: Icon(Icons.history_rounded)),
+                icon: const Icon(Icons.history_rounded)),
           ],
           foregroundColor: Colors.black,
           backgroundColor: Colors.white,
@@ -225,7 +223,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         floatingActionButtonLocation: FloatingActionButtonLocation.centerFloat,
         floatingActionButton: workoutMode == APP_STATUS.IN_BREAK
             ? FloatingActionButton(
-                child: Icon(Icons.stop),
+                child: const Icon(Icons.stop),
                 backgroundColor: isWorkoutEmpty ? Colors.grey : null,
                 onPressed: isWorkoutEmpty
                     ? null
@@ -233,7 +231,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                         Analytics.sendAnalyticsEvent('finish_workout_button');
                         showDialog(
                             context: context,
-                            builder: (BuildContext context) => AlertDialog(title: Text('운동을 종료할까요?'), actions: [
+                            builder: (BuildContext context) => AlertDialog(title: const Text('운동을 종료할까요?'), actions: [
                                   TextButton(
                                       onPressed: () {
                                         setIsStarted(false);
@@ -251,7 +249,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               )
             : workoutMode == APP_STATUS.FINISH
                 ? FloatingActionButton(
-                    child: Icon(Icons.play_arrow),
+                    child: const Icon(Icons.play_arrow),
                     onPressed: () async {
                       setAppStatus(APP_STATUS.IN_BREAK);
                       setTargetWorkout();
@@ -266,15 +264,15 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     return Column(
       children: [
         isWorkoutEmpty ? Container() : workoutInfo(),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         counter(),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         controlPanel(targetWeight, targetReps),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         startStopButton(),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
         SuggestionWidget(message: message, notifyRefreshButtonPressed: shuffleSuggestionMessage),
-        SizedBox(height: 20),
+        const SizedBox(height: 20),
       ],
     );
   }
@@ -283,7 +281,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     return Padding(
       padding: const EdgeInsets.all(10.0),
       child: Row(
-        children: [Text(text, style: TextStyle(fontSize: 20))],
+        children: [Text(text, style: const TextStyle(fontSize: 20))],
       ),
     );
   }
@@ -294,7 +292,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       child: Stack(alignment: Alignment.center, children: [
         Text(
           nowWorkoutName,
-          style: TextStyle(fontSize: 20),
+          style: const TextStyle(fontSize: 20),
         ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -317,7 +315,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       setSuggestion();
                       // setProgressiveUI(todayTargetWorkouts[workoutIndex]['workout']);
                     },
-                    icon: Icon(Icons.arrow_back_ios_new_outlined))
+                    icon: const Icon(Icons.arrow_back_ios_new_outlined))
                 : Container(),
             workoutMode == APP_STATUS.IN_BREAK
                 ? IconButton(
@@ -339,7 +337,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
                       // setProgressiveUI(todayTargetWorkouts[workoutIndex]['workout']);
                     },
-                    icon: Icon(Icons.arrow_forward_ios_outlined))
+                    icon: const Icon(Icons.arrow_forward_ios_outlined))
                 : Container()
           ],
         ),
@@ -352,7 +350,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     return workoutMode == APP_STATUS.IN_BREAK
         ? ElevatedButton(
             style: ElevatedButton.styleFrom(
-              primary: Color(0xff04A777),
+              primary: const Color(0xff04A777),
               shape: const CircleBorder(),
               fixedSize: const Size(180, 180),
             ),
@@ -375,8 +373,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.play_arrow_rounded, size: 90),
-                Text('$nowSetNumber세트 시작', style: TextStyle(fontSize: 20)),
+                const Icon(Icons.play_arrow_rounded, size: 90),
+                Text('$nowSetNumber세트 시작', style: const TextStyle(fontSize: 20)),
               ],
             ),
           )
@@ -384,7 +382,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             style: ElevatedButton.styleFrom(
               shape: const CircleBorder(),
               fixedSize: const Size(180, 180),
-              animationDuration: Duration(milliseconds: 300),
+              animationDuration: const Duration(milliseconds: 300),
             ),
             onPressed: () async {
               Analytics.sendAnalyticsEvent('stop_counter_button');
@@ -400,9 +398,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
               setID = await DBHelper.instance.insertSets(Sets(
                   workout: todayTargetWorkouts[workoutIndex]['workout'],
-                  targetNumTime: this.targetReps,
-                  weight: this.targetWeight,
-                  setOrder: this.nowSetNumber - 1,
+                  targetNumTime: targetReps,
+                  weight: targetWeight,
+                  setOrder: nowSetNumber - 1,
                   createdAt: DateTime.now().toIso8601String(),
                   updatedAt: DateTime.now().toIso8601String()));
 
@@ -410,7 +408,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   set: setID,
                   type: _evaluationType.label,
                   note: '',
-                  resultNumTime: this.targetReps,
+                  resultNumTime: targetReps,
                   elapsedTime: '$minutes:$seconds',
                   createdAt: DateTime.now().toIso8601String(),
                   updatedAt: DateTime.now().toIso8601String()));
@@ -420,7 +418,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                   timerMinutes = 0;
                   timerSeconds = 0;
                 });
-                resetTimer(this.timerMinutes, this.timerSeconds);
+                resetTimer(timerMinutes, timerSeconds);
               }
               startTimer(TIMER_TYPE.UP);
 
@@ -435,10 +433,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(Icons.pause, size: 90),
+                const Icon(Icons.pause, size: 90),
                 Text(
                   '$nowSetNumber세트 종료',
-                  style: TextStyle(fontSize: 20),
+                  style: const TextStyle(fontSize: 20),
                 ),
               ],
             ),
@@ -454,7 +452,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           TweenAnimationBuilder(
-              duration: Duration(milliseconds: 400),
+              duration: const Duration(milliseconds: 400),
               tween: Tween<double>(begin: _scale, end: _scale),
               builder: (_, double size, __) =>
                   Text('$minutes:$seconds', style: TextStyle(fontWeight: FontWeight.w100, color: Colors.black, fontSize: size)))
@@ -483,12 +481,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                       return Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Text((todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i).toString() + '세트 '),
-                          Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['weight'].toString() + 'kg'),
-                          Text(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time'].toString() + '회'),
+                          Text('${todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i}세트 '),
+                          Text('${todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['weight']}kg'),
+                          Text('${todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['target_num_time']}회'),
                           badges.Badge(
                             position: badges.BadgePosition.topEnd(top: 2, end: 5),
-                            badgeContent: Icon(Icons.circle_rounded, color: Colors.pink, size: 2),
+                            badgeContent: const Icon(Icons.circle_rounded, color: Colors.pink, size: 2),
                             showBadge: isNewSet(
                                     i, DateTime.parse(todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['created_at']))
                                 ? true
@@ -514,36 +512,37 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                               scrollable: true,
                                               actionsAlignment: MainAxisAlignment.end,
                                               title:
-                                                  Text((todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i).toString() + '세트 평가'),
+                                                  Text('${todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i}세트 평가'),
                                               content: StatefulBuilder(
                                                 builder: (BuildContext context, StateSetter setState) {
                                                   return Column(
                                                     mainAxisSize: MainAxisSize.min,
                                                     crossAxisAlignment: CrossAxisAlignment.start,
                                                     children: [
-                                                      Text('중량'),
+                                                      const Text('중량'),
                                                       TextField(
                                                         keyboardType: TextInputType.number,
                                                         inputFormatters: [FilteringTextInputFormatter.digitsOnly],
                                                         controller: textInputControllerWeight,
                                                         decoration: InputDecoration(hintText: '${newWeight}kg'),
                                                       ),
-                                                      SizedBox(height: 20),
-                                                      Text('횟수'),
+                                                      const SizedBox(height: 20),
+                                                      const Text('횟수'),
                                                       TextField(
                                                         keyboardType: TextInputType.number,
                                                         controller: textInputControllerReps,
-                                                        decoration: InputDecoration(hintText: '${newReps}회'),
+                                                        decoration: InputDecoration(hintText: '$newReps회'),
                                                       ),
-                                                      SizedBox(height: 20),
-                                                      Text('평가'),
+                                                      const SizedBox(height: 20),
+                                                      const Text('평가'),
                                                       Row(
                                                         children: [
                                                           Expanded(
+                                                            flex: 1,
                                                             child: ListTile(
                                                               horizontalTitleGap: -5,
-                                                              contentPadding: EdgeInsets.all(0),
-                                                              title: Text(
+                                                              contentPadding: const EdgeInsets.all(0),
+                                                              title: const Text(
                                                                 '쉬움',
                                                                 style: TextStyle(fontSize: 12),
                                                               ),
@@ -557,14 +556,14 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                                 },
                                                               ),
                                                             ),
-                                                            flex: 1,
                                                           ),
                                                           Expanded(
+                                                            flex: 1,
                                                             child: ListTile(
                                                               horizontalTitleGap: -5,
-                                                              contentPadding: EdgeInsets.all(0),
+                                                              contentPadding: const EdgeInsets.all(0),
                                                               dense: true,
-                                                              title: Text(
+                                                              title: const Text(
                                                                 '성공',
                                                                 style: TextStyle(fontSize: 12),
                                                               ),
@@ -578,13 +577,13 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                                 },
                                                               ),
                                                             ),
-                                                            flex: 1,
                                                           ),
                                                           Expanded(
+                                                            flex: 1,
                                                             child: ListTile(
                                                               horizontalTitleGap: -5,
-                                                              contentPadding: EdgeInsets.all(0),
-                                                              title: Text(
+                                                              contentPadding: const EdgeInsets.all(0),
+                                                              title: const Text(
                                                                 '실패',
                                                                 style: TextStyle(fontSize: 12),
                                                               ),
@@ -598,13 +597,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                                 },
                                                               ),
                                                             ),
-                                                            flex: 1,
                                                           )
                                                         ],
                                                       ),
                                                       Row(
                                                         children: [
-                                                          Text('개선할 점'),
+                                                          const Text('개선할 점'),
                                                           TextButton(
                                                               onPressed: () async {
                                                                 var latestNote = await DBHelper.instance.getNote(nowWorkoutID,
@@ -616,7 +614,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                                   });
                                                                 }
                                                               },
-                                                              child: Text(
+                                                              child: const Text(
                                                                 '지난 메모 불러오기',
                                                                 style: TextStyle(fontSize: 12),
                                                               ))
@@ -627,7 +625,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                         maxLines: null,
                                                         keyboardType: TextInputType.multiline,
                                                         controller: textInputControllerNote,
-                                                        decoration: InputDecoration(hintText: '${newNote}'),
+                                                        decoration: InputDecoration(hintText: '$newNote'),
                                                       )
                                                     ],
                                                   );
@@ -640,17 +638,17 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                 ),
                                                 TextButton(
                                                     onPressed: () {
-                                                      if (textInputControllerWeight.text.length > 0) {
+                                                      if (textInputControllerWeight.text.isNotEmpty) {
                                                         DBHelper.updateWeight(
                                                             todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['id'],
                                                             int.parse(textInputControllerWeight.text));
                                                       }
-                                                      if (textInputControllerReps.text.length > 0) {
+                                                      if (textInputControllerReps.text.isNotEmpty) {
                                                         DBHelper.updateReps(
                                                             todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]['id'],
                                                             int.parse(textInputControllerReps.text));
                                                       }
-                                                      if (textInputControllerNote.text.length > 0) {
+                                                      if (textInputControllerNote.text.isNotEmpty) {
                                                         DBHelper.updateNote(
                                                             todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]
                                                                 ['evaluationsID'],
@@ -666,15 +664,15 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                     child: const Text('확인')),
                                               ]));
                                 },
-                                icon: Icon(Icons.edit)),
+                                icon: const Icon(Icons.edit)),
                           ),
                           IconButton(
-                            icon: Icon(Icons.delete),
+                            icon: const Icon(Icons.delete),
                             onPressed: () {
                               showDialog(
                                   context: context,
                                   builder: (BuildContext context) => AlertDialog(
-                                        title: Text('세트를 삭제합니다.'),
+                                        title: const Text('세트를 삭제합니다.'),
                                         actions: [
                                           TextButton(
                                               onPressed: () async {
@@ -687,12 +685,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                 setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
                                                 Navigator.of(context).pop();
                                               },
-                                              child: Text('네')),
+                                              child: const Text('네')),
                                           TextButton(
                                               onPressed: () {
                                                 Navigator.of(context).pop();
                                               },
-                                              child: Text('취소'))
+                                              child: const Text('취소'))
                                         ],
                                       ));
                             },
@@ -707,11 +705,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   Widget emptyWorkoutMessage() {
-    return Text('운동을 추가 해보세요');
+    return const Text('운동을 추가 해보세요');
   }
 
   Widget controlPanel(int targetWeight, int targetReps) {
-    final TextStyle _style = TextStyle(color: Colors.black);
+    final TextStyle _style = const TextStyle(color: Colors.black);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.center,
       mainAxisSize: MainAxisSize.min,
@@ -725,7 +723,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               Expanded(flex: 1, child: TextButton(child: Text('-10', style: _style), onPressed: () => reduceWeight(10))),
               Expanded(flex: 1, child: TextButton(child: Text('-5', style: _style), onPressed: () => reduceWeight(5))),
               Expanded(flex: 1, child: TextButton(child: Text('-1', style: _style), onPressed: () => reduceWeight(1))),
-              Expanded(flex: 2, child: Text(textAlign: TextAlign.center, '$targetWeight kg', style: TextStyle(fontSize: 20))),
+              Expanded(flex: 2, child: Text(textAlign: TextAlign.center, '$targetWeight kg', style: const TextStyle(fontSize: 20))),
               Expanded(flex: 1, child: TextButton(child: Text('+1', style: _style), onPressed: () => addWeight(1))),
               Expanded(flex: 1, child: TextButton(child: Text('+5', style: _style), onPressed: () => addWeight(5))),
               Expanded(flex: 1, child: TextButton(child: Text('+10', style: _style), onPressed: () => addWeight(10))),
@@ -741,7 +739,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               TextButton(child: Text('-1', style: _style), onPressed: () => reduceReps(1)),
               Text(
                 '$targetReps회',
-                style: TextStyle(fontSize: 20),
+                style: const TextStyle(fontSize: 20),
               ),
               TextButton(child: Text('+1', style: _style), onPressed: () => addReps(1)),
               TextButton(child: Text('+5', style: _style), onPressed: () => addReps(5)),
@@ -757,7 +755,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   Future<void> setTargetWeightReps(int workoutID, setInNumber) async {
-    if (todayTargetWorkouts.length > 0) {
+    if (todayTargetWorkouts.isNotEmpty) {
       var setHistory = await DBHelper.instance.getLatestSetHistory(workoutID);
 
       //과거에 히스토리가 없으면 오늘 데이터로 셋팅
@@ -1053,10 +1051,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   void startTimer(TIMER_TYPE type) {
     switch (type) {
       case TIMER_TYPE.UP:
-        countTimer = Timer.periodic(Duration(seconds: 1), (_) => setCountUp());
+        countTimer = Timer.periodic(const Duration(seconds: 1), (_) => setCountUp());
         break;
       case TIMER_TYPE.DOWN:
-        countTimer = Timer.periodic(Duration(seconds: 1), (_) => setCountDown());
+        countTimer = Timer.periodic(const Duration(seconds: 1), (_) => setCountDown());
         break;
     }
   }
@@ -1244,7 +1242,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   void _scrollDown() {
     _scrollController.animateTo(
       _scrollController.position.maxScrollExtent,
-      duration: Duration(seconds: 1),
+      duration: const Duration(seconds: 1),
       curve: Curves.fastOutSlowIn,
     );
   }
