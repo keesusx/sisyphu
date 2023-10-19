@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -508,7 +509,10 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) => AlertDialog(
-                                        actionsPadding: EdgeInsets.all(10),
+                                              // actionsPadding: EdgeInsets.all(10),
+                                              actionsOverflowDirection: VerticalDirection.down,
+                                              scrollable: true,
+                                              actionsAlignment: MainAxisAlignment.end,
                                               title:
                                                   Text((todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i).toString() + '세트 평가'),
                                               content: StatefulBuilder(
@@ -619,17 +623,21 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                         ],
                                                       ),
                                                       TextField(
-                                                      minLines: 1,
-                                                      maxLines: 3,
-                                                      keyboardType: TextInputType.multiline,
-                                                      controller: textInputControllerNote,
-                                                      decoration: InputDecoration(hintText: '${newNote}'),
-                                                        )
+                                                        textInputAction: TextInputAction.newline,
+                                                        maxLines: null,
+                                                        keyboardType: TextInputType.multiline,
+                                                        controller: textInputControllerNote,
+                                                        decoration: InputDecoration(hintText: '${newNote}'),
+                                                      )
                                                     ],
                                                   );
                                                 },
                                               ),
                                               actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.of(context).pop(),
+                                                  child: const Text('취소'),
+                                                ),
                                                 TextButton(
                                                     onPressed: () {
                                                       if (textInputControllerWeight.text.length > 0) {
@@ -655,7 +663,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                       setTodayCompletedWorkouts();
                                                       Navigator.of(context).pop();
                                                     },
-                                                    child: const Text('OK'))
+                                                    child: const Text('확인')),
                                               ]));
                                 },
                                 icon: Icon(Icons.edit)),
@@ -820,7 +828,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   Future<void> setTargetWorkout() async {
-
     List<Map<String, dynamic>> originalPickedWorkoutsFromDB = await DBHelper.instance.getTodayTargetWorkoutId();
     List<Map<String, dynamic>> allWorkouts = await DBHelper.instance.getWorkouts();
     List<Map<String, dynamic>> resultTargetWorkouts = [];
@@ -844,16 +851,15 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     List<Target> targets = originalPickedWorkoutsFromDB.map((c) => Target.fromMap(c)).toList();
     List<int> bodypartDifferentPointIndex = searchDifferentIndex(targets);
 
-
     // 같은 운동 묶는 로직 시작
     for (int i = 0; i < bodypartDifferentPointIndex.length; i++) {
       sameBodypartWorkoutIdList = [];
       remainWorkoutIdList = [];
-      
+
       int index = bodypartDifferentPointIndex[i];
 
       List<Map<String, dynamic>> sameBodyPartWorkouts = await DBHelper.instance.getAllWorkoutsByBodyPart(targets[index].bodypartID);
-     
+
       sameBodyPartWorkouts.forEach((element) {
         sameBodypartWorkoutIdList.add(element['workout']);
       });
@@ -869,7 +875,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     // 나머지 남은 운동들 뒤에 붙이기
     otherWorkoutIdList = allWorkoutIdList.toSet().difference(targetWorkoutIdList.toSet()).toList();
     targetWorkoutIdList.addAll(otherWorkoutIdList);
-
 
     // workout id 값을 가지고 리스트 데이터 맵핑
     for (int i = 0; i < targetWorkoutIdList.length; i++) {
