@@ -24,7 +24,7 @@ class DBHelper {
     String path = join(documentsDirectory.path, 'database.db');
     return await openDatabase(path,
 
-        version: 29, // 개발은 41
+        version: 42,
         onCreate: _onCreate,
         // onConfigure: _onConfigure
         onUpgrade: _onUpgrade);
