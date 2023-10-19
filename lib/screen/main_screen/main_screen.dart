@@ -831,9 +831,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     List<int> sameBodypartWorkoutIdList = [];
     List<int> remainWorkoutIdList = [];
 
-    List<Target> targets = originalPickedWorkoutsFromDB.map((c) => Target.fromMap(c)).toList();
-    List<int> bodypartDifferentPointIndex = searchDifferentIndex(targets);
-
+    //id 값만 뽑아내서 리스트에 저장
     originalPickedWorkoutsFromDB.forEach((element) {
       targetWorkoutIdList.add(int.parse(element['workout'].toString()));
     });
@@ -842,6 +840,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       allWorkoutIdList.add(int.parse(element['workout'].toString()));
     });
 
+    // bodypart 달라지는 index 찾아서 저장
+    List<Target> targets = originalPickedWorkoutsFromDB.map((c) => Target.fromMap(c)).toList();
+    List<int> bodypartDifferentPointIndex = searchDifferentIndex(targets);
+
+
+    // 같은 운동 묶는 로직 시작
     for (int i = 0; i < bodypartDifferentPointIndex.length; i++) {
       sameBodypartWorkoutIdList = [];
       remainWorkoutIdList = [];
