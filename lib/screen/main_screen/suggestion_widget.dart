@@ -35,14 +35,15 @@ class _SuggestionWidgetState extends State<SuggestionWidget> {
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       children: [
         DecoratedBox(
-          decoration: BoxDecoration(border: Border.all(color: Colors.pink, style: BorderStyle.solid, width: 1), borderRadius: BorderRadius.circular(8)),
+          decoration:
+              BoxDecoration(border: Border.all(color: Colors.pink, style: BorderStyle.solid, width: 1), borderRadius: BorderRadius.circular(8)),
           child: Padding(padding: const EdgeInsets.all(6.0), child: Icon(CustomIcons.chart, color: Colors.pink, size: 16)),
         ),
         messageWidget(),
-        IconButton(icon: Icon(Icons.refresh, color: Colors.pink), onPressed: () {
-          Analytics.sendAnalyticsEvent('signal_refresh_icon');
-          widget.notifyRefreshButtonPressed
-        ;})
+        IconButton(
+            icon: Icon(Icons.refresh, color: Colors.pink),
+            onPressed: widget.notifyRefreshButtonPressed
+        )
       ],
     );
   }

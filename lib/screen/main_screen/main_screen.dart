@@ -511,8 +511,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                               actionsOverflowDirection: VerticalDirection.down,
                                               scrollable: true,
                                               actionsAlignment: MainAxisAlignment.end,
-                                              title:
-                                                  Text('${todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i}세트 평가'),
+                                              title: Text('${todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i}세트 평가'),
                                               content: StatefulBuilder(
                                                 builder: (BuildContext context, StateSetter setState) {
                                                   return Column(
@@ -1173,6 +1172,8 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   void shuffleSuggestionMessage() {
+    Analytics.sendAnalyticsEvent('signal_refresh_icon');
+    
     int index = SUGGESTION_INDEX.values.indexOf(suggestion_index);
     if (index < SUGGESTION_INDEX.values.length) {
       setState(() {
