@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sisyphu/db/workouts.dart';
 import 'package:sisyphu/screen/add_workout_screen.dart';
 import 'package:sisyphu/screen/main_screen/suggestion.dart';
 import 'package:sisyphu/screen/main_screen/suggestion_widget.dart';
@@ -817,35 +818,78 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   Future<void> setTargetWorkout() async {
-    List<Map<String, dynamic>> recommendedWorkouts = await DBHelper.instance.getTodayTargetWorkoutId();
+    List<Map<String, dynamic>> data = await DBHelper.instance.getTodayTargetWorkoutId();
     List<Map<String, dynamic>> allWorkouts = await DBHelper.instance.getWorkouts();
-    List<Map<String, dynamic>> targetWorkouts = List<Map<String, dynamic>>.from(recommendedWorkouts);
-
+    List<Map<String, dynamic>> resultWorktous = [];
     List<int> targetWorkoutIDList = [];
     List<int> allWorkoutIDList = [];
     List<int> otherWorkouts = [];
 
-    recommendedWorkouts.forEach((element) {
+    data.forEach((element) {
       targetWorkoutIDList.add(int.parse(element['workout'].toString()));
     });
+
+    print('targetWorkoutIDList: $targetWorkoutIDList');
+
 
     allWorkouts.forEach((element) {
       allWorkoutIDList.add(int.parse(element['workout'].toString()));
     });
 
-    otherWorkouts = allWorkoutIDList.toSet().difference(targetWorkoutIDList.toSet()).toList();
+    List<Target> targets = data.map((c) => Target.fromMap(c)).toList();
 
-    for (int i = 0; i < otherWorkouts.length; i++) {
+    var indexes = searchDifferentIndex(targets);
+
+    List<int> workoutsSameBodyPartWorkouts = [];
+    List<int> workoutsTargetWorkouts = [];
+    List<int> remainWorkouts = [];
+
+    data.forEach((element) {
+      workoutsTargetWorkouts.add(element['workout']);
+    });
+
+    for (int i = 0; i < indexes.length; i++) {
+      workoutsSameBodyPartWorkouts = [];
+      remainWorkouts = [];
+      var index = indexes[i];
+
+      List<Map<String, dynamic>> sameBodyPartWorkouts = await DBHelper.instance.getAllWorkoutsByBodyPart(targets[index].bodypartID);
+      // print(sameBodyPartWorkouts);
+      sameBodyPartWorkouts.forEach((element) {
+        workoutsSameBodyPartWorkouts.add(element['workout']);
+      });
+      // print('workoutsSameBodyPartWorkouts: $workoutsSameBodyPartWorkouts');
+      // print('workoutsTargetWorkouts: $workoutsTargetWorkouts');
+
+      remainWorkouts = workoutsSameBodyPartWorkouts.toSet().difference(workoutsTargetWorkouts.toSet()).toList();
+      // print('remainWorkouts: $remainWorkouts');
+      // print('index: $index');
+      if(remainWorkouts.isNotEmpty) {
+        targetWorkoutIDList.insert(index + i + 1, remainWorkouts.first);
+      }
+    }
+
+    // print('allWorkoutIDList: $allWorkoutIDList');
+    // print('targetWorkoutIDList: $targetWorkoutIDList');
+
+    otherWorkouts = allWorkoutIDList.toSet().difference(targetWorkoutIDList.toSet()).toList();
+    print('otherWorkouts: $otherWorkouts');
+    targetWorkoutIDList.addAll(otherWorkouts);
+
+
+    for (int i = 0; i < targetWorkoutIDList.length; i++) {
       for (int j = 0; j < allWorkouts.length; j++) {
-        if (allWorkouts[j]['workout'] == otherWorkouts[i]) {
-          targetWorkouts.add(allWorkouts[j]);
+        if (allWorkouts[j]['workout'] == targetWorkoutIDList[i]) {
+          resultWorktous.add(allWorkouts[j]);
         }
       }
     }
 
-    if (recommendedWorkouts.isNotEmpty) {
+    print('resultWorktous: $resultWorktous');
+
+    if (data.isNotEmpty) {
       setState(() {
-        todayTargetWorkouts = targetWorkouts;
+        todayTargetWorkouts = resultWorktous;
       });
     } else {
       setState(() {
@@ -853,15 +897,21 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       });
     }
 
-    // // print('today targets: $todayTargetWorkouts');
-    // print(todayTargetWorkouts[0]['workout'].runtimeType);
-
-    // // List<Target> targets = todayTargetWorkouts.map((c) => Target.fromMap(c)).toList();
-    // // print('targets: $targets');
-
     if (todayTargetWorkouts.isNotEmpty) {
       setNowWorkoutName(todayTargetWorkouts[workoutIndex]['name']);
     }
+  }
+
+  List<int> searchDifferentIndex(List<Target> list) {
+    List<int> indexList = [];
+
+    for (int i = 0; i < list.length - 1; i++) {
+      if (list[i].bodypartID != list[i + 1].bodypartID) {
+        indexList.add(i);
+      }
+    }
+
+    return indexList;
   }
 
   void setProgressiveUI(int workoutID) async {
@@ -1104,7 +1154,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   void setSuggestionData() {
     if (history.isEmpty) {
-      if(nowSetNumber > 1) {
+      if (nowSetNumber > 1) {
         setSuggestionMessage('조금 전 세트를 메모해보세요\n다음 운동시 리마인드 해드려요');
       } else {
         setSuggestionMessage('다음 운동부터 중량, 횟수가 자동설정 돼요');

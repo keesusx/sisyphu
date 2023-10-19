@@ -1,16 +1,16 @@
 class Workouts {
   final int? id;
   final String name;
-  final int? body_part;
+  final int body_part;
   final String created_at;
   final String updated_at;
 
   Workouts({this.id, required this.name, required this.body_part, required this.created_at, required this.updated_at});
 
-  factory Workouts.fromMap(Map<String, dynamic> json) => new Workouts(
+  factory Workouts.fromMap(Map<String, dynamic> json) => Workouts(
         id: json['id'],
         name: json['name'],
-        body_part: json['body_part'],
+        body_part: int.parse(json['body_part']),
         created_at: json['created_at'],
         updated_at: json['updated_at'],
       );
