@@ -508,7 +508,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) => AlertDialog(
-                                              actionsPadding: EdgeInsets.all(10),
+                                        actionsPadding: EdgeInsets.all(10),
                                               title:
                                                   Text((todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i).toString() + '세트 평가'),
                                               content: StatefulBuilder(
@@ -619,12 +619,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                         ],
                                                       ),
                                                       TextField(
-                                                        minLines: 1,
-                                                        maxLines: 3,
-                                                        keyboardType: TextInputType.multiline,
-                                                        controller: textInputControllerNote,
-                                                        decoration: InputDecoration(hintText: '${newNote}'),
-                                                      )
+                                                      minLines: 1,
+                                                      maxLines: 3,
+                                                      keyboardType: TextInputType.multiline,
+                                                      controller: textInputControllerNote,
+                                                      decoration: InputDecoration(hintText: '${newNote}'),
+                                                        )
                                                     ],
                                                   );
                                                 },
@@ -820,76 +820,66 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   Future<void> setTargetWorkout() async {
-    List<Map<String, dynamic>> data = await DBHelper.instance.getTodayTargetWorkoutId();
+
+    List<Map<String, dynamic>> originalPickedWorkoutsFromDB = await DBHelper.instance.getTodayTargetWorkoutId();
     List<Map<String, dynamic>> allWorkouts = await DBHelper.instance.getWorkouts();
-    List<Map<String, dynamic>> resultWorktous = [];
-    List<int> targetWorkoutIDList = [];
-    List<int> allWorkoutIDList = [];
-    List<int> otherWorkouts = [];
+    List<Map<String, dynamic>> resultTargetWorkouts = [];
 
-    data.forEach((element) {
-      targetWorkoutIDList.add(int.parse(element['workout'].toString()));
+    List<int> targetWorkoutIdList = [];
+    List<int> allWorkoutIdList = [];
+    List<int> otherWorkoutIdList = [];
+    List<int> sameBodypartWorkoutIdList = [];
+    List<int> remainWorkoutIdList = [];
+
+    List<Target> targets = originalPickedWorkoutsFromDB.map((c) => Target.fromMap(c)).toList();
+    List<int> bodypartDifferentPointIndex = searchDifferentIndex(targets);
+
+    originalPickedWorkoutsFromDB.forEach((element) {
+      targetWorkoutIdList.add(int.parse(element['workout'].toString()));
     });
-
-    print('targetWorkoutIDList: $targetWorkoutIDList');
 
     allWorkouts.forEach((element) {
-      allWorkoutIDList.add(int.parse(element['workout'].toString()));
+      allWorkoutIdList.add(int.parse(element['workout'].toString()));
     });
 
-    List<Target> targets = data.map((c) => Target.fromMap(c)).toList();
-
-    var indexes = searchDifferentIndex(targets);
-
-    List<int> workoutsSameBodyPartWorkouts = [];
-    List<int> workoutsTargetWorkouts = [];
-    List<int> remainWorkouts = [];
-
-    data.forEach((element) {
-      workoutsTargetWorkouts.add(element['workout']);
-    });
-
-    for (int i = 0; i < indexes.length; i++) {
-      workoutsSameBodyPartWorkouts = [];
-      remainWorkouts = [];
-      var index = indexes[i];
+    for (int i = 0; i < bodypartDifferentPointIndex.length; i++) {
+      sameBodypartWorkoutIdList = [];
+      remainWorkoutIdList = [];
+      
+      int index = bodypartDifferentPointIndex[i];
 
       List<Map<String, dynamic>> sameBodyPartWorkouts = await DBHelper.instance.getAllWorkoutsByBodyPart(targets[index].bodypartID);
-      // print(sameBodyPartWorkouts);
+     
       sameBodyPartWorkouts.forEach((element) {
-        workoutsSameBodyPartWorkouts.add(element['workout']);
+        sameBodypartWorkoutIdList.add(element['workout']);
       });
-      // print('workoutsSameBodyPartWorkouts: $workoutsSameBodyPartWorkouts');
-      // print('workoutsTargetWorkouts: $workoutsTargetWorkouts');
 
-      remainWorkouts = workoutsSameBodyPartWorkouts.toSet().difference(workoutsTargetWorkouts.toSet()).toList();
-      // print('remainWorkouts: $remainWorkouts');
-      // print('index: $index');
-      if (remainWorkouts.isNotEmpty) {
-        targetWorkoutIDList.insert(index + i + 1, remainWorkouts.first);
+      remainWorkoutIdList = sameBodypartWorkoutIdList.toSet().difference(targetWorkoutIdList.toSet()).toList();
+
+      // 같은 부위 운동을 원하는 리스트 위치에 집어넣기
+      if (remainWorkoutIdList.isNotEmpty) {
+        targetWorkoutIdList.insert(index + i + 1, remainWorkoutIdList.first);
       }
     }
 
-    // print('allWorkoutIDList: $allWorkoutIDList');
-    // print('targetWorkoutIDList: $targetWorkoutIDList');
+    // 나머지 남은 운동들 뒤에 붙이기
+    otherWorkoutIdList = allWorkoutIdList.toSet().difference(targetWorkoutIdList.toSet()).toList();
+    targetWorkoutIdList.addAll(otherWorkoutIdList);
 
-    otherWorkouts = allWorkoutIDList.toSet().difference(targetWorkoutIDList.toSet()).toList();
-    print('otherWorkouts: $otherWorkouts');
-    targetWorkoutIDList.addAll(otherWorkouts);
 
-    for (int i = 0; i < targetWorkoutIDList.length; i++) {
+    // workout id 값을 가지고 리스트 데이터 맵핑
+    for (int i = 0; i < targetWorkoutIdList.length; i++) {
       for (int j = 0; j < allWorkouts.length; j++) {
-        if (allWorkouts[j]['workout'] == targetWorkoutIDList[i]) {
-          resultWorktous.add(allWorkouts[j]);
+        if (allWorkouts[j]['workout'] == targetWorkoutIdList[i]) {
+          resultTargetWorkouts.add(allWorkouts[j]);
         }
       }
     }
 
-    print('resultWorktous: $resultWorktous');
-
-    if (data.isNotEmpty) {
+    // State 변경
+    if (originalPickedWorkoutsFromDB.isNotEmpty) {
       setState(() {
-        todayTargetWorkouts = resultWorktous;
+        todayTargetWorkouts = resultTargetWorkouts;
       });
     } else {
       setState(() {
