@@ -160,6 +160,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     TextStyle _onBreakTextStyle = TextStyle(color: Colors.black);
 
     return Scaffold(
+        resizeToAvoidBottomInset: false,
         appBar: AppBar(
           centerTitle: true,
           title: workoutMode == APP_STATUS.FINISH
@@ -507,6 +508,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) => AlertDialog(
+                                              actionsPadding: EdgeInsets.all(10),
                                               title:
                                                   Text((todayCompletedWorkoutsInGroup.entries.toList()[index].value.length - i).toString() + '세트 평가'),
                                               content: StatefulBuilder(
@@ -831,7 +833,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
     print('targetWorkoutIDList: $targetWorkoutIDList');
 
-
     allWorkouts.forEach((element) {
       allWorkoutIDList.add(int.parse(element['workout'].toString()));
     });
@@ -864,7 +865,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       remainWorkouts = workoutsSameBodyPartWorkouts.toSet().difference(workoutsTargetWorkouts.toSet()).toList();
       // print('remainWorkouts: $remainWorkouts');
       // print('index: $index');
-      if(remainWorkouts.isNotEmpty) {
+      if (remainWorkouts.isNotEmpty) {
         targetWorkoutIDList.insert(index + i + 1, remainWorkouts.first);
       }
     }
@@ -875,7 +876,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     otherWorkouts = allWorkoutIDList.toSet().difference(targetWorkoutIDList.toSet()).toList();
     print('otherWorkouts: $otherWorkouts');
     targetWorkoutIDList.addAll(otherWorkouts);
-
 
     for (int i = 0; i < targetWorkoutIDList.length; i++) {
       for (int j = 0; j < allWorkouts.length; j++) {
