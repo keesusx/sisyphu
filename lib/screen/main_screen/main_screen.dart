@@ -38,7 +38,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   late APP_STATUS workoutMode;
   late bool isStarted;
-
+  late bool isNoteWritten;
   late int timerMinutes;
   late int timerSeconds;
   late int targetWeight;
@@ -72,6 +72,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     WidgetsBinding.instance.addObserver(this);
     super.initState();
     isStarted = false;
+    isNoteWritten = false;
     nowWorkoutName = '';
     nowWorkoutID = 0;
     targetWeight = 0;
@@ -475,7 +476,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
               return Theme(
                 data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
                 child: ExpansionTile(
-                    initiallyExpanded: false,
+                    initiallyExpanded: true,
                     title: Text(todayCompletedWorkoutsInGroup.keys.toList()[index].toString()),
                     children: List<Widget>.generate(todayCompletedWorkoutsInGroup.entries.toList()[index].value.length, (int i) {
                       return Row(
@@ -652,12 +653,14 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                             todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]
                                                                 ['evaluationsID'],
                                                             textInputControllerNote.text);
+                                                            setIsNoteWritten(true);
                                                       }
                                                       DBHelper.updateEvaluationType(
                                                           todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]
                                                               ['evaluationsID'],
                                                           tempEvaluationType.label);
                                                       setTodayCompletedWorkouts();
+                                                      setSuggestion();
                                                       Navigator.of(context).pop();
                                                     },
                                                     child: const Text('확인')),
@@ -814,11 +817,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     if (todayWeightReps.isNotEmpty) {
       var latestWeightReps = todayWeightReps.last;
 
-      print('오늘 이전에 운동한 기록은 없고 오늘 운동 기록은 있음');
+      // print('오늘 이전에 운동한 기록은 없고 오늘 운동 기록은 있음');
       setNowWorkoutWeight(latestWeightReps['weight']);
       setNowWorkoutReps(latestWeightReps['reps']);
     } else {
-      print('오늘 이전에 운동한 기록도 없고 오늘도 처음 운동임');
+      // print('오늘 이전에 운동한 기록도 없고 오늘도 처음 운동임');
       setNowWorkoutWeight(0);
       setNowWorkoutReps(1);
     }
@@ -955,7 +958,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   Future<void> prefixIsWorkoutEmpty() async {
     List<Map<String, dynamic>> data = await DBHelper.instance.getWorkouts();
-    if (data.length == 0) {
+    if (data.isEmpty) {
       setState(() {
         isWorkoutEmpty = true;
       });
@@ -1014,6 +1017,12 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   void setIsStarted(bool isStart) {
     setState(() {
       isStarted = isStart;
+    });
+  }
+  
+  void setIsNoteWritten(bool isWritten) {
+    setState(() {
+      isNoteWritten = isWritten;
     });
   }
 
@@ -1149,9 +1158,14 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   void setSuggestionData() {
-    if (history.isEmpty) {
-      if (nowSetNumber > 1) {
-        setSuggestionMessage('조금 전 세트를 메모해보세요\n다음 운동시 리마인드 해드려요');
+    print('isNoteWritten: $isNoteWritten');
+    if(history.isEmpty) {
+      if(nowSetNumber > 1) {
+        if(isNoteWritten) {
+         setSuggestionMessage('다음 운동부터 중량, 횟수가 자동설정 돼요');
+        } else if(isNoteWritten == false){
+          setSuggestionMessage('조금 전 세트를 메모해보세요\n다음 운동시 리마인드 해드려요');
+        }
       } else {
         setSuggestionMessage('다음 운동부터 중량, 횟수가 자동설정 돼요');
       }
