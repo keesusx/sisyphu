@@ -1158,7 +1158,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   void setSuggestionData() {
-    print('isNoteWritten: $isNoteWritten');
     if(history.isEmpty) {
       if(nowSetNumber > 1) {
         if(isNoteWritten) {
