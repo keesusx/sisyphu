@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'package:sisyphu/screen/add_workout_screen.dart';
 import 'package:sisyphu/screen/main_screen/suggestion.dart';
 import 'package:sisyphu/screen/main_screen/suggestion_widget.dart';
-import 'package:sisyphu/screen/workout_history_screen.dart';
+import 'package:sisyphu/screen/workout_history_screen/workout_history_screen.dart';
 import 'package:sisyphu/utils/analytics.dart';
 import '../../db/evaluations.dart';
 import '../../db/sets.dart';
