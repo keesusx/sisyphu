@@ -19,7 +19,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
   late Map<String, List> setListInGroup;
 
   bool isLoading = true;
-  int dateGenerateNumber = 14;
+  final int dateGenerateNumber = 14;
 
   @override
   void initState() {
@@ -31,8 +31,7 @@ class _WorkoutHistoryScreenState extends State<WorkoutHistoryScreen> {
     syncWorkoutDates();
 
     Future.delayed(Duration(milliseconds: 300), () {
-      dates =
-          List.generate(dateGenerateNumber, (index) => DateTime.now().subtract(Duration(days: dateGenerateNumber - (index + 1)))).reversed.toList();
+      dates= List.generate(dateGenerateNumber, (index) => DateTime.now().subtract(Duration(days: dateGenerateNumber - (index + 1)))).reversed.toList();
       fetchHistoryData();
       isLoading = false;
     });
