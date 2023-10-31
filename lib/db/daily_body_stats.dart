@@ -2,7 +2,7 @@ class DailyBodyStats {
   final int? id;
   final double? weight;
   final double? skeletalMuscle;
-  final int? fatRate;
+  final double? fatRate;
   final String? note;
   final String createdAt;
   final String updatedAt;
