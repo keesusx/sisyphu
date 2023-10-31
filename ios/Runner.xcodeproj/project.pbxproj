@@ -476,15 +476,15 @@
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = UBVLC38KQV;
 				ENABLE_BITCODE = NO;
-				FLUTTER_BUILD_NAME = 2.2.0;
-				FLUTTER_BUILD_NUMBER = 3;
+				FLUTTER_BUILD_NAME = 2.3;
+				FLUTTER_BUILD_NUMBER = 1;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.2.0;
+				MARKETING_VERSION = 2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.io.sisyphu;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -663,15 +663,15 @@
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = UBVLC38KQV;
 				ENABLE_BITCODE = NO;
-				FLUTTER_BUILD_NAME = 2.2.0;
-				FLUTTER_BUILD_NUMBER = 3;
+				FLUTTER_BUILD_NAME = 2.3;
+				FLUTTER_BUILD_NUMBER = 1;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.2.0;
+				MARKETING_VERSION = 2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.io.sisyphu;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
@@ -691,15 +691,15 @@
 				CURRENT_PROJECT_VERSION = 3;
 				DEVELOPMENT_TEAM = UBVLC38KQV;
 				ENABLE_BITCODE = NO;
-				FLUTTER_BUILD_NAME = 2.2.0;
-				FLUTTER_BUILD_NUMBER = 3;
+				FLUTTER_BUILD_NAME = 2.3;
+				FLUTTER_BUILD_NUMBER = 1;
 				INFOPLIST_FILE = Runner/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.healthcare-fitness";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 2.2.0;
+				MARKETING_VERSION = 2.3;
 				PRODUCT_BUNDLE_IDENTIFIER = com.io.sisyphu;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_OBJC_BRIDGING_HEADER = "Runner/Runner-Bridging-Header.h";
