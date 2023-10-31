@@ -379,7 +379,7 @@ class _WorkoutHistoryState extends State<WorkoutHistory> {
                             const SizedBox(height: 20),
                             const Text('골격근(kg)'),
                             TextField(
-                              keyboardType: TextInputType.number,
+                              keyboardType: TextInputType.numberWithOptions(decimal: true, signed: false),
                               //소수점 입력 formatter 처리
                               inputFormatters: [
                                 LengthLimitingTextInputFormatter(4),
