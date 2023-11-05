@@ -835,8 +835,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     List<int> targetWorkoutIdList = [];
     List<int> allWorkoutIdList = [];
     List<int> otherWorkoutIdList = [];
-    List<int> sameBodypartWorkoutIdList = [];
-    List<int> remainWorkoutIdList = [];
 
     //id 값만 뽑아내서 리스트에 저장
     originalPickedWorkoutsFromDB.forEach((element) {
@@ -846,31 +844,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     allWorkouts.forEach((element) {
       allWorkoutIdList.add(int.parse(element['workout'].toString()));
     });
-
-    // bodypart 달라지는 index 찾아서 저장
-    List<Target> targets = originalPickedWorkoutsFromDB.map((c) => Target.fromMap(c)).toList();
-    List<int> bodypartDifferentPointIndex = searchDifferentIndex(targets);
-
-    // 같은 운동 묶는 로직 시작
-    for (int i = 0; i < bodypartDifferentPointIndex.length; i++) {
-      sameBodypartWorkoutIdList = [];
-      remainWorkoutIdList = [];
-
-      int index = bodypartDifferentPointIndex[i];
-
-      List<Map<String, dynamic>> sameBodyPartWorkouts = await DBHelper.instance.getAllWorkoutsByBodyPart(targets[index].bodypartID);
-
-      sameBodyPartWorkouts.forEach((element) {
-        sameBodypartWorkoutIdList.add(element['workout']);
-      });
-
-      remainWorkoutIdList = sameBodypartWorkoutIdList.toSet().difference(targetWorkoutIdList.toSet()).toList();
-
-      // 같은 부위 운동을 원하는 리스트 위치에 집어넣기
-      if (remainWorkoutIdList.isNotEmpty) {
-        targetWorkoutIdList.insert(index + i + 1, remainWorkoutIdList.first);
-      }
-    }
 
     // 나머지 남은 운동들 뒤에 붙이기
     otherWorkoutIdList = allWorkoutIdList.toSet().difference(targetWorkoutIdList.toSet()).toList();
