@@ -14,6 +14,7 @@ import 'package:collection/collection.dart';
 import '../../utils/enums.dart';
 import 'package:badges/badges.dart' as badges;
 import '../../utils/target.dart';
+import '../../utils/now_workout.dart';
 
 class MainScreen extends StatefulWidget {
   const MainScreen({Key? key}) : super(key: key);
@@ -46,6 +47,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   late int targetReps;
   late int newReps;
   late int nowSetNumber;
+
   late int nowWorkoutID;
   late String nowWorkoutName;
   late double _scale;
@@ -158,7 +160,6 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   Widget build(BuildContext context) {
     TextStyle _onWorkoutTextStyle = const TextStyle(color: Colors.pink);
     TextStyle _onBreakTextStyle = const TextStyle(color: Colors.black);
-
     return Scaffold(
         resizeToAvoidBottomInset: false,
         appBar: AppBar(
@@ -291,10 +292,32 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     return Container(
       height: 70,
       child: Stack(alignment: Alignment.center, children: [
-        Text(
-          nowWorkoutName,
-          style: const TextStyle(fontSize: 20),
-        ),
+        DropdownButton<String>(
+            alignment: Alignment.center,
+            elevation: 1,
+            underline: Container(),
+            value: nowWorkoutName,
+            items: todayTargetWorkouts
+                .map((e) => DropdownMenuItem(alignment: Alignment.center, value: e['name'].toString(), child: Text(e['name'])))
+                .toList(),
+            onChanged: (String? value) async {
+              int index = todayTargetWorkouts.indexWhere((element) => element['name'] == value);
+              setNowWorkoutID(index);
+              setNowWorkoutName(value!);
+              setState(() {
+                workoutIndex = index;
+              });
+              var temp = await DBHelper.instance.getCompletedSetsToday(todayTargetWorkouts[workoutIndex]['workout']);
+              setNowSetNumber(temp + 1);
+              await setTargetWeightReps(todayTargetWorkouts[workoutIndex]['workout'], nowSetNumber);
+              setTodayVolumn(todayTargetWorkouts[workoutIndex]['workout']);
+              setLatestVolumn(todayTargetWorkouts[workoutIndex]['workout']);
+              setSuggestion();
+            }),
+        // Text(
+        //   nowWorkoutName,
+        //   style: const TextStyle(fontSize: 20),
+        // ),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -653,7 +676,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
                                                             todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]
                                                                 ['evaluationsID'],
                                                             textInputControllerNote.text);
-                                                            setIsNoteWritten(true);
+                                                        setIsNoteWritten(true);
                                                       }
                                                       DBHelper.updateEvaluationType(
                                                           todayCompletedWorkoutsInGroup.entries.toList()[index].value.reversed.toList()[i]
@@ -870,7 +893,9 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
     }
 
     if (todayTargetWorkouts.isNotEmpty) {
+      print('here');
       setNowWorkoutName(todayTargetWorkouts[workoutIndex]['name']);
+      setNowWorkoutID(todayTargetWorkouts[workoutIndex]['workout']);
     }
   }
 
@@ -958,6 +983,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   void setNowWorkoutName(String workoutName) {
+    print('set name: $workoutName');
     setState(() {
       nowWorkoutName = workoutName;
     });
@@ -992,7 +1018,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
       isStarted = isStart;
     });
   }
-  
+
   void setIsNoteWritten(bool isWritten) {
     setState(() {
       isNoteWritten = isWritten;
@@ -1131,11 +1157,11 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
   }
 
   void setSuggestionData() {
-    if(history.isEmpty) {
-      if(nowSetNumber > 1) {
-        if(isNoteWritten) {
-         setSuggestionMessage('다음 운동부터 중량, 횟수가 자동설정 돼요');
-        } else if(isNoteWritten == false){
+    if (history.isEmpty) {
+      if (nowSetNumber > 1) {
+        if (isNoteWritten) {
+          setSuggestionMessage('다음 운동부터 중량, 횟수가 자동설정 돼요');
+        } else if (isNoteWritten == false) {
           setSuggestionMessage('조금 전 세트를 메모해보세요\n다음 운동시 리마인드 해드려요');
         }
       } else {
@@ -1159,7 +1185,7 @@ class _MainScreenState extends State<MainScreen> with SingleTickerProviderStateM
 
   void shuffleSuggestionMessage() {
     Analytics.sendAnalyticsEvent('signal_refresh_icon');
-    
+
     int index = SUGGESTION_INDEX.values.indexOf(suggestion_index);
     if (index < SUGGESTION_INDEX.values.length) {
       setState(() {

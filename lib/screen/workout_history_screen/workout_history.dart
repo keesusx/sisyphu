@@ -60,8 +60,6 @@ class _WorkoutHistoryState extends State<WorkoutHistory> {
 
   @override
   Widget build(BuildContext context) {
-    print('widget build');
-
     return Scrollbar(
       controller: _scrollController,
       child: ListView.separated(
